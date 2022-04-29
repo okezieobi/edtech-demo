@@ -2,6 +2,7 @@ import { createConnection, getConnection, ConnectionOptions } from 'typeorm';
 
 import Env from '../utils/Env';
 import UserEntity from './User';
+// sudo -u postgres createdb edtech-api-demo
 
 const connection = async () => {
   let initializedConnection;
