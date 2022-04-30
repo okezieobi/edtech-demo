@@ -42,6 +42,7 @@ export default class UserEntity extends AppEntity {
       password: string;
 
     @Column({ type: 'text', default: 'student' })
+    @IsString()
     @IsIn(['student', 'mentor', 'admin'])
       role: string;
 

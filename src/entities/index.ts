@@ -22,11 +22,6 @@ const connection = async () => {
   return initializedConnection;
 };
 
-const userRepository = async () => {
-  const resolvedConnection = await connection();
-  return resolvedConnection.getRepository(UserEntity);
-};
-
 export default connection;
 
-export { userRepository };
+export { UserEntity };

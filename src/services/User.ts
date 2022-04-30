@@ -1,4 +1,4 @@
-import { userRepository } from '../entities';
+import userRepository from '../repositories/User';
 import LoginValidator, { LoginParams } from '../validators/User.login';
 import IdValidator from '../validators/Id';
 
@@ -9,6 +9,7 @@ interface UserServicesParams {
 
 interface SignupParams extends LoginParams {
     name: string;
+    role: string;
 }
 
 if (process.env.NODE_ENV === 'development') {

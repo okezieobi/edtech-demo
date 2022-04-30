@@ -1,13 +1,10 @@
 import { Router } from 'express';
 
-// import userRoutes from './user';
-// import fileRoutes from './file';
+import userRoutes from './user';
 
 const router = Router();
-// router.use('/auth', userRoutes.authRouter);
-// router.use(userRoutes.authUser);
-// router.use('/files', fileRoutes.router);
-// router.use(userRoutes.isAdmin);
-// router.use('/all_files', fileRoutes.adminRouter);
+router.use('/auth', userRoutes.authRouter);
+router.use(userRoutes.authUser);
+router.use(userRoutes.isAdmin);
 
 export default router;
