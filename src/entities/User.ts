@@ -16,10 +16,10 @@ export default class UserEntity extends AppEntity {
     email: string,
     name: string,
     password: string,
+    role: string = 'student',
     // files: FileEntity[],
     createdAt: Date = new Date(),
     updatedAt: Date = new Date(),
-    role: string = 'client',
   ) {
     super(id, createdAt, updatedAt);
     this.email = email;
@@ -41,7 +41,7 @@ export default class UserEntity extends AppEntity {
     @IsString()
       password: string;
 
-    @Column({ type: 'text', default: 'student' })
+    @Column({ type: 'text' })
     @IsString()
     @IsIn(['student', 'mentor', 'admin'])
       role: string;

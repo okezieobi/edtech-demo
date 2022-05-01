@@ -1,10 +1,8 @@
 import userRepository from '../repositories/User';
-import LoginValidator, { LoginParams } from '../validators/User.login';
-import IdValidator from '../validators/Id';
+import { LoginParams } from '../validators/User.login';
 
 interface UserServicesParams {
   repository: { user: typeof userRepository };
-  validator: { user: { Login: typeof LoginValidator }}
 }
 
 interface SignupParams extends LoginParams {
@@ -28,14 +26,10 @@ if (process.env.NODE_ENV === 'development') {
 export default class UserServices implements UserServicesParams {
   repository: { user: typeof userRepository };
 
-  validator: { user: { Login: typeof LoginValidator }};
-
   constructor(
     repository = { user: userRepository },
-    validator = { user: { Login: LoginValidator } },
   ) {
     this.repository = repository;
-    this.validator = validator;
     this.signupUser = this.signupUser.bind(this);
     this.loginUser = this.loginUser.bind(this);
     this.authUser = this.authUser.bind(this);
@@ -49,18 +43,16 @@ export default class UserServices implements UserServicesParams {
   }
 
   async loginUser({ email, password }: LoginParams) {
-    await new this.validator.user.Login(email, password)
-      .validate({ validationError: { target: false }, forbidUnknownValues: true });
     const repo = await this.repository.user();
+    await repo.validateLogin({ email, password });
     const userExists = await repo.findOneOrFail({ where: { email } });
     await userExists.validatePassword(password);
     return { message: 'Registered user successfully signed in', data: { ...userExists, password: undefined } };
   }
 
   async authUser(id: string) {
-    await new IdValidator(id)
-      .validate({ validationError: { target: false }, forbidUnknownValues: true });
     const repo = await this.repository.user();
+    await repo.validateUserId(id);
     return repo.findOneOrFail({ where: { id } });
   }
 }
