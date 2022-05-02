@@ -1,4 +1,4 @@
-name: cloud backup api demo CI
+name: ed-tech api demo CI
 
 on:
   push:
