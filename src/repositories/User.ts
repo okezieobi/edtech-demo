@@ -23,3 +23,5 @@ export default async () => {
   const resolvedConnection = await await connection();
   return resolvedConnection.getCustomRepository(UserRepository);
 };
+
+export { LoginParams };

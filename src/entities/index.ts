@@ -9,9 +9,9 @@ const connection = async () => {
   const options: ConnectionOptions = {
     type: 'postgres',
     url: new Env().databaseURL,
-    ssl: process.env.NODE_ENV === 'testing-in-ci' ? false : { rejectUnauthorized: false },
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     synchronize: true,
-    dropSchema: process.env.NODE_ENV === 'development',
+    dropSchema: process.env.NODE_ENV !== 'production',
     entities: [UserEntity],
   };
   try {

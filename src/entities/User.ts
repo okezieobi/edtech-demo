@@ -16,10 +16,10 @@ export default class UserEntity extends AppEntity {
     email: string,
     name: string,
     password: string,
-    role: string = 'student',
     // files: FileEntity[],
-    createdAt: Date = new Date(),
-    updatedAt: Date = new Date(),
+    createdAt: Date,
+    updatedAt: Date,
+    role: string = 'student',
   ) {
     super(id, createdAt, updatedAt);
     this.email = email;

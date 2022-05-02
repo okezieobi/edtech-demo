@@ -1,5 +1,4 @@
-import userRepository from '../repositories/User';
-import { LoginParams } from '../validators/User.login';
+import userRepository, { LoginParams } from '../repositories/User';
 
 interface UserServicesParams {
   repository: { user: typeof userRepository };
@@ -7,7 +6,7 @@ interface UserServicesParams {
 
 interface SignupParams extends LoginParams {
     name: string;
-    role: string;
+    role?: string;
 }
 
 if (process.env.NODE_ENV === 'development') {
