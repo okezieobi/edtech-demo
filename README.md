@@ -2,6 +2,10 @@
 
 A simple REST API edtech demo
 
+## live self hosted documentation
+
+<https://ed-tech-demo.herokuapp.com/api-docs/>
+
 [![ed-tech api demo CI](https://github.com/okezieobi/edtech-demo/actions/workflows/main.yml/badge.svg)](https://github.com/okezieobi/edtech-demo/actions/workflows/main.yml)
 
 [![Coverage Status](https://coveralls.io/repos/github/okezieobi/edtech-demo/badge.svg?branch=main)](https://coveralls.io/github/okezieobi/edtech-demo?branch=main)
