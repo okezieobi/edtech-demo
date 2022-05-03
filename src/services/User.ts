@@ -31,8 +31,8 @@ export default class UserServices implements UserServicesParams {
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
-    this.update = this.update.bind(this);
-    this.delete = this.delete.bind(this);
+    this.updateOne = this.updateOne.bind(this);
+    this.deleteOne = this.deleteOne.bind(this);
   }
 
   async signup(arg: SignupParams) {
@@ -62,18 +62,18 @@ export default class UserServices implements UserServicesParams {
     return { message: 'Users successfully retrieved', data };
   }
 
-  async getOne(user: object) {
-    return { message: 'User successfully retrieved', data: { ...user, password: undefined } };
+  async getOne(user: any) {
+    return { message: 'User successfully retrieved', data: { ...user.data, password: undefined } };
   }
 
-  async update(arg: object, user: object) {
+  async updateOne(arg: object, user: object) {
     const repo = await this.repository();
     const data = { ...user, ...arg };
     const updatedUser = await repo.save(data);
     return { message: 'User successfully updated', data: { ...updatedUser, password: undefined } };
   }
 
-  async delete(user: any) {
+  async deleteOne(user: any) {
     const repo = await this.repository();
     await repo.remove(user);
     return { message: 'User successfully deleted' };

@@ -47,7 +47,7 @@ export default class AssessmentServices implements AssessmentServicesParams {
 
   async getOne(assessment: any) {
     const mentor = await assessment.mentor;
-    return { message: 'Assessment successfully retrieved', data: { ...assessment, mentor: { ...mentor, password: undefined } } };
+    return { message: 'Assessment successfully retrieved', data: { ...assessment.data, mentor: { ...mentor, password: undefined } } };
   }
 
   async updateOne(arg: object, assessment: object) {

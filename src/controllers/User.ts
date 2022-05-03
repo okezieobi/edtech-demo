@@ -22,6 +22,11 @@ export default class UserController extends Controller implements UserController
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
+    this.verifyOne = this.verifyOne.bind(this);
+    this.getOne = this.getOne.bind(this);
+    this.updateOne = this.updateOne.bind(this);
+    this.deleteOne = this.deleteOne.bind(this);
+    this.listAll = this.listAll.bind(this);
   }
 
   async setJWT(req: Request, res: Response, next: NextFunction) {
@@ -42,11 +47,10 @@ export default class UserController extends Controller implements UserController
   }
 
   static isRestricted(req: Request, res: Response, next: NextFunction) {
-    if (res.locals.user.role === 'student') next();
-    else {
+    if (res.locals.user.role === 'student') {
       res.status(403);
       next({ isClient: true, response: { status: 'error', message: 'User must be an admin or a mentor', data: { timestamp: new Date() } } });
-    }
+    } else next();
   }
 
   async signup({
@@ -84,8 +88,66 @@ export default class UserController extends Controller implements UserController
     }
   }
 
+  async listAll(req: Request, res: Response, next: NextFunction) {
+    const { listAll } = new this.Service();
+    return this.handleService({
+      method: listAll,
+      res,
+      next,
+      arg: undefined,
+    });
+  }
+
   async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction) {
     const { auth } = new this.Service();
-    const data = await auth(id).catch(next);
+    return this.handleService({
+      method: auth,
+      res,
+      next,
+      arg: id,
+    });
+  }
+
+  async getOne(req: Request, res: Response, next: NextFunction) {
+    const { getOne } = new this.Service();
+    return this.handleService({
+      method: getOne,
+      res,
+      next,
+      arg: res.locals.user,
+    });
+  }
+
+  async updateOne(
+    {
+      body: {
+        email, name, password, role,
+      },
+    }: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    const { updateOne } = new this.Service();
+    const data = await updateOne(
+      {
+        email, name, password, role,
+      },
+      res.locals.user,
+    ).catch(next);
+    if (data == null) next('Service error');
+    else {
+      res.locals.user = data;
+      next();
+    }
+  }
+
+  async deleteOne(req: Request, res: Response, next: NextFunction) {
+    const { deleteOne } = new this.Service();
+    return this.handleService({
+      method: deleteOne,
+      res,
+      next,
+      arg: res.locals.user,
+    });
   }
 }
