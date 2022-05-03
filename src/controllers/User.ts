@@ -24,14 +24,13 @@ export default class UserController extends Controller implements UserController
     this.auth = this.auth.bind(this);
   }
 
-  setJWT(req: Request, res: Response, next: NextFunction) {
-    new this.Jwt().generate(res.locals.user.data.id)
-      .then((token) => {
-        if (token) {
-          res.locals.user.data.token = token;
-          next();
-        }
-      }).catch(next);
+  async setJWT(req: Request, res: Response, next: NextFunction) {
+    const token = await new this.Jwt().generate(res.locals.user.data.id).catch(next);
+    if (token == null) next('Server error');
+    else {
+      res.locals.user.data.token = token;
+      next();
+    }
   }
 
   static isAdmin(req: Request, res: Response, next: NextFunction) {
@@ -50,7 +49,7 @@ export default class UserController extends Controller implements UserController
     }
   }
 
-  signup({
+  async signup({
     body: {
       email, name, password, role,
     },
@@ -67,21 +66,21 @@ export default class UserController extends Controller implements UserController
     });
   }
 
-  login({ body }: Request, res: Response, next: NextFunction) {
+  async login({ body }: Request, res: Response, next: NextFunction) {
     const { login } = new this.Service();
     return this.handleService({
       method: login, res, next, arg: body,
     });
   }
 
-  auth({ headers: { token } }: Request, res: Response, next: NextFunction) {
-    new this.Jwt().verify(`${token}`)
-      .then(({ id }: any) => {
-        const { auth } = new this.Service();
-        this.handleService({
-          method: auth, res, next, arg: id,
-        });
-      })
-      .catch(next);
+  async auth({ headers: { token } }: Request, res: Response, next: NextFunction) {
+    const payload: any = await new this.Jwt().verify(`${token}`).catch(next);
+    const { auth } = new this.Service();
+    const data = await auth(payload.id);
+    if (data == null) next('Service error');
+    else {
+      res.locals.authorized = data;
+      next();
+    }
   }
 }

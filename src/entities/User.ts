@@ -1,5 +1,5 @@
 import {
-  Entity, Column, BeforeInsert, BeforeUpdate,
+  Entity, Column, BeforeInsert, BeforeUpdate, JoinTable,
   OneToMany,
 } from 'typeorm';
 import { IsEmail, IsIn, IsString } from 'class-validator';
@@ -13,23 +13,23 @@ import AppError from '../errors';
 export default class UserEntity extends AppEntity {
    @Column({ unique: true, type: 'text', nullable: false })
     @IsEmail()
-     email: string;
+     email!: string;
 
     @Column({ nullable: false, type: 'text' })
     @IsString()
-      name: string;
+      name!: string;
 
     @Column({ nullable: false, type: 'text' })
     @IsString()
-      password: string;
+      password!: string;
 
     @Column({ type: 'text' })
-    @IsString()
     @IsIn(['student', 'mentor', 'admin'])
-      role: string;
+      role?: string = 'student';
 
     @OneToMany(() => AssessmentEntity, (assessment) => assessment.mentor, { onDelete: 'CASCADE' })
-      assessments: AssessmentEntity[];
+    @JoinTable()
+      assessments?: AssessmentEntity[];
 
     @BeforeInsert()
     @BeforeUpdate()
@@ -42,23 +42,5 @@ export default class UserEntity extends AppEntity {
       if (!isValidPassword) {
         throw new AppError('Password provided does not match user', 'Authorization', { param, msg: 'Authentication failed, mismatched password' });
       }
-    }
-
-    constructor(
-      id: string,
-      email: string,
-      name: string,
-      password: string,
-      assessments: AssessmentEntity[],
-      createdAt: Date,
-      updatedAt: Date,
-      role: string = 'student',
-    ) {
-      super(id, createdAt, updatedAt);
-      this.email = email;
-      this.name = name;
-      this.role = role;
-      this.password = password;
-      this.assessments = assessments;
     }
 }

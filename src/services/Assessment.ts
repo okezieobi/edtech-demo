@@ -27,14 +27,15 @@ export default class AssessmentServices implements AssessmentServicesParams {
 
   async createOne(arg: AssessmentParams) {
     const repo = await this.repository();
-    const newAssessment = repo.create(arg);
-    await repo.save(newAssessment);
+    const input = repo.create(arg);
+    const newAssessment = await repo.save(input);
     return { message: 'New assessment successfully created', data: { ...newAssessment, mentor: undefined } };
   }
 
-  async listAll() {
+  async listAll(mentor: string) {
     const repo = await this.repository();
-    const data = await repo.find();
+    const query = mentor == null ? {} : { where: { mentor } };
+    const data = await repo.find(query);
     return { message: 'Assessments successfully retrieved', data };
   }
 
@@ -44,14 +45,15 @@ export default class AssessmentServices implements AssessmentServicesParams {
     return data;
   }
 
-  async getOne(assessment: object) {
-    return { message: 'Assessment successfully retrieved', data: assessment };
+  async getOne(assessment: any) {
+    const mentor = await assessment.mentor;
+    return { message: 'Assessment successfully retrieved', data: { ...assessment, mentor: { ...mentor, password: undefined } } };
   }
 
   async updateOne(arg: object, assessment: object) {
     const repo = await this.repository();
-    const data = { ...assessment, ...arg };
-    await repo.save(data);
+    const input = { ...assessment, ...arg };
+    const data = await repo.save(input);
     return { message: 'Assessment successfully updated', data };
   }
 

@@ -36,8 +36,8 @@ export default class UserServices implements UserServicesParams {
 
   async signup(arg: SignupParams) {
     const repo = await this.repository();
-    const newUser = repo.create(arg);
-    await repo.save(newUser);
+    const input = repo.create(arg);
+    const newUser = await repo.save(input);
     return { message: 'New user successfully signed up', data: { ...newUser, password: undefined } };
   }
 
