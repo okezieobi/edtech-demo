@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import userRepository, { LoginParams } from '../repositories/User';
 
 interface UserServicesParams {
@@ -53,6 +54,16 @@ export default class UserServices implements UserServicesParams {
     const repo = await this.repository();
     await repo.validateUserId(id);
     return repo.findOneOrFail({ where: { id } });
+  }
+
+  async listAll() {
+    const repo = await this.repository();
+    const data = await repo.find();
+    return { message: 'Users successfully retrieved', data };
+  }
+
+  async getOne(user: object) {
+    return { message: 'User successfully retrieved', data: { ...user, password: undefined } };
   }
 
   async update(arg: object, user: object) {

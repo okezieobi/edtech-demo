@@ -76,11 +76,16 @@ export default class UserController extends Controller implements UserController
   async auth({ headers: { token } }: Request, res: Response, next: NextFunction) {
     const payload: any = await new this.Jwt().verify(`${token}`).catch(next);
     const { auth } = new this.Service();
-    const data = await auth(payload.id);
+    const data = await auth(payload.id).catch(next);
     if (data == null) next('Service error');
     else {
       res.locals.authorized = data;
       next();
     }
+  }
+
+  async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction) {
+    const { auth } = new this.Service();
+    const data = await auth(id).catch(next);
   }
 }
