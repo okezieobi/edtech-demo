@@ -2,6 +2,7 @@ import { createConnection, getConnection, ConnectionOptions } from 'typeorm';
 
 import Env from '../utils/Env';
 import UserEntity from './User';
+import AssessmentEntity from './Assessment';
 // sudo -u postgres createdb edtech-api-demo
 
 const connection = async () => {
@@ -12,7 +13,7 @@ const connection = async () => {
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     synchronize: true,
     dropSchema: process.env.NODE_ENV !== 'production',
-    entities: [UserEntity],
+    entities: [UserEntity, AssessmentEntity],
   };
   try {
     initializedConnection = getConnection();
@@ -24,4 +25,4 @@ const connection = async () => {
 
 export default connection;
 
-export { UserEntity };
+export { UserEntity, AssessmentEntity };

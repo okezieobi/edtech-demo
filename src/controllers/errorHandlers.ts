@@ -42,10 +42,10 @@ const handleJwtError = (
   } else next(err);
 };
 
-const handleEntityNotFoundErr = (err: any, req: Request, res: Response, next: NextFunction) => {
+const handleEntityNotFoundErr = (err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof EntityNotFoundError) {
     res.status(404);
-    const errMsg:string = err.message.replace(/\s+/g, ' ');
+    const errMsg:string = err.message.replace(/\s+/gi, ' ');
     next({
       isClient: errorMarkers.isClient,
       response: {
@@ -57,7 +57,7 @@ const handleEntityNotFoundErr = (err: any, req: Request, res: Response, next: Ne
   } else next(err);
 };
 
-const handleSQLValidationErr = (err: any, req: Request, res: Response, next: NextFunction) => {
+const handleSQLValidationErr = (err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof QueryFailedError) {
     res.status(400);
     next({
@@ -88,16 +88,12 @@ const handleValidationError = (err: any, req: Request, res: Response, next: Next
 const handleCustomError = (err: AppError, req: Request, res: Response, next: NextFunction) => {
   const error = { status: errorMarkers.status, message: err.message, data: err.data };
   switch (err.type) {
-    case 'Argument':
-      res.status(400);
-      next({ isClient: errorMarkers.isClient, response: error });
-      break;
-    case 'Query':
-      res.status(404);
-      next({ isClient: errorMarkers.isClient, response: error });
-      break;
     case 'Authorization':
       res.status(401);
+      next({ isClient: errorMarkers.isClient, response: error });
+      break;
+    case 'Forbidden':
+      res.status(403);
       next({ isClient: errorMarkers.isClient, response: error });
       break;
     default:

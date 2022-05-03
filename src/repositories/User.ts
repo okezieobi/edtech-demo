@@ -20,7 +20,7 @@ class UserRepository extends Repository<UserEntity> {
 }
 
 export default async () => {
-  const resolvedConnection = await await connection();
+  const resolvedConnection = await connection();
   return resolvedConnection.getCustomRepository(UserRepository);
 };
 

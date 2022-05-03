@@ -1,37 +1,19 @@
 import {
-  Entity, Column, BeforeInsert,
-  // OneToMany,
+  Entity, Column, BeforeInsert, BeforeUpdate,
+  OneToMany,
 } from 'typeorm';
 import { IsEmail, IsIn, IsString } from 'class-validator';
 
 import AppEntity from './Base';
-// import FileEntity from './File';
+import AssessmentEntity from './Assessment';
 import bcrypt from '../utils/bcrypt';
 import AppError from '../errors';
 
 @Entity()
 export default class UserEntity extends AppEntity {
-  constructor(
-    id: string,
-    email: string,
-    name: string,
-    password: string,
-    // files: FileEntity[],
-    createdAt: Date,
-    updatedAt: Date,
-    role: string = 'student',
-  ) {
-    super(id, createdAt, updatedAt);
-    this.email = email;
-    this.name = name;
-    this.role = role;
-    this.password = password;
-    // this.files = files;
-  }
-
-    @Column({ unique: true, type: 'text', nullable: false })
+   @Column({ unique: true, type: 'text', nullable: false })
     @IsEmail()
-      email: string;
+     email: string;
 
     @Column({ nullable: false, type: 'text' })
     @IsString()
@@ -46,10 +28,11 @@ export default class UserEntity extends AppEntity {
     @IsIn(['student', 'mentor', 'admin'])
       role: string;
 
-    //   @OneToMany(() => FileEntity, (file) => file.user, { onDelete: 'CASCADE' })
-    //     files: FileEntity[];
+    @OneToMany(() => AssessmentEntity, (assessment) => assessment.mentor, { onDelete: 'CASCADE' })
+      assessments: AssessmentEntity[];
 
     @BeforeInsert()
+    @BeforeUpdate()
     async hashPassword() {
       if (this.password != null) this.password = await bcrypt.hashString(this.password);
     }
@@ -59,5 +42,23 @@ export default class UserEntity extends AppEntity {
       if (!isValidPassword) {
         throw new AppError('Password provided does not match user', 'Authorization', { param, msg: 'Authentication failed, mismatched password' });
       }
+    }
+
+    constructor(
+      id: string,
+      email: string,
+      name: string,
+      password: string,
+      assessments: AssessmentEntity[],
+      createdAt: Date,
+      updatedAt: Date,
+      role: string = 'student',
+    ) {
+      super(id, createdAt, updatedAt);
+      this.email = email;
+      this.name = name;
+      this.role = role;
+      this.password = password;
+      this.assessments = assessments;
     }
 }

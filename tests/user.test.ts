@@ -58,8 +58,8 @@ describe('User tests', () => {
 
   describe('Testing new user signup', () => {
     it('Should signup new user', async () => {
-      const { signupUser } = new UserServices();
-      const { message, data } = await signupUser(newUser);
+      const { signup } = new UserServices();
+      const { message, data } = await signup(newUser);
       expect(message).toBeString();
       expect(message).toEqual('New user successfully signed up');
       expect(data).toBeObject();
@@ -76,8 +76,8 @@ describe('User tests', () => {
     });
 
     it('Should signup new mentor', async () => {
-      const { signupUser } = new UserServices();
-      const { message, data } = await signupUser(newMentor);
+      const { signup } = new UserServices();
+      const { message, data } = await signup(newMentor);
       expect(message).toBeString();
       expect(message).toEqual('New user successfully signed up');
       expect(data).toBeObject();
@@ -94,8 +94,8 @@ describe('User tests', () => {
     });
 
     it('Should signup new admin', async () => {
-      const { signupUser } = new UserServices();
-      const { message, data } = await signupUser(newAdmin);
+      const { signup } = new UserServices();
+      const { message, data } = await signup(newAdmin);
       expect(message).toBeString();
       expect(message).toEqual('New user successfully signed up');
       expect(data).toBeObject();
@@ -114,8 +114,8 @@ describe('User tests', () => {
 
   describe('Testing registered user signing in', () => {
     it('Signs in registered user', async () => {
-      const { loginUser } = new UserServices();
-      const { message, data } = await loginUser({ email: user.email, password: user.password });
+      const { login } = new UserServices();
+      const { message, data } = await login({ email: user.email, password: user.password });
       expect(message).toBeString();
       expect(message).toEqual('Registered user successfully signed in');
       expect(data).toBeObject();
@@ -134,8 +134,8 @@ describe('User tests', () => {
 
   describe('Testing authentication user', () => {
     it('Authenticates user by id', async () => {
-      const { authUser } = new UserServices();
-      const data = await authUser(userForTesting.id);
+      const { auth } = new UserServices();
+      const data = await auth(userForTesting.id);
       expect(data).toBeObject();
       expect(data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
       expect(data.id).toBeString();

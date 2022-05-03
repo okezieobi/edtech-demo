@@ -19,9 +19,9 @@ export default class UserController extends Controller implements UserController
     this.Service = Service;
     this.Jwt = Jwt;
     this.setJWT = this.setJWT.bind(this);
-    this.signupUser = this.signupUser.bind(this);
-    this.loginUser = this.loginUser.bind(this);
-    this.authUser = this.authUser.bind(this);
+    this.signup = this.signup.bind(this);
+    this.login = this.login.bind(this);
+    this.auth = this.auth.bind(this);
   }
 
   setJWT(req: Request, res: Response, next: NextFunction) {
@@ -42,14 +42,22 @@ export default class UserController extends Controller implements UserController
     }
   }
 
-  signupUser({
+  static isRestricted(req: Request, res: Response, next: NextFunction) {
+    if (res.locals.user.role === 'student') next();
+    else {
+      res.status(403);
+      next({ isClient: true, response: { status: 'error', message: 'User must be an admin or a mentor', data: { timestamp: new Date() } } });
+    }
+  }
+
+  signup({
     body: {
       email, name, password, role,
     },
   }: Request, res: Response, next: NextFunction) {
-    const { signupUser } = new this.Service();
+    const { signup } = new this.Service();
     return this.handleService({
-      method: signupUser,
+      method: signup,
       res,
       next,
       arg: {
@@ -59,19 +67,19 @@ export default class UserController extends Controller implements UserController
     });
   }
 
-  loginUser({ body }: Request, res: Response, next: NextFunction) {
-    const { loginUser } = new this.Service();
+  login({ body }: Request, res: Response, next: NextFunction) {
+    const { login } = new this.Service();
     return this.handleService({
-      method: loginUser, res, next, arg: body,
+      method: login, res, next, arg: body,
     });
   }
 
-  authUser({ headers: { token } }: Request, res: Response, next: NextFunction) {
+  auth({ headers: { token } }: Request, res: Response, next: NextFunction) {
     new this.Jwt().verify(`${token}`)
       .then(({ id }: any) => {
-        const { authUser } = new this.Service();
+        const { auth } = new this.Service();
         this.handleService({
-          method: authUser, res, next, arg: id,
+          method: auth, res, next, arg: id,
         });
       })
       .catch(next);

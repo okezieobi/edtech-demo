@@ -6,7 +6,7 @@ import { validateOrReject } from 'class-validator';
 
 @Entity()
 export default class AppEntity {
-  constructor(id: string, createdAt: Date = new Date(), updatedAt: Date = new Date()) {
+  constructor(id: string, createdAt: Date, updatedAt: Date) {
     this.id = id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;

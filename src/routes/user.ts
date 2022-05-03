@@ -3,12 +3,12 @@ import { Router } from 'express';
 import Controller from '../controllers/User';
 
 const {
-  signupUser, loginUser, setJWT, dispatchResponse, authUser,
+  signup, login, setJWT, dispatchResponse, auth,
 } = new Controller();
 
 const authRouter = Router();
 
-authRouter.post('/signup', [signupUser, setJWT], dispatchResponse);
-authRouter.post('/login', [loginUser, setJWT], dispatchResponse);
+authRouter.post('/signup', [signup, setJWT], dispatchResponse);
+authRouter.post('/login', [login, setJWT], dispatchResponse);
 
-export default { authRouter, authUser, isAdmin: Controller.isAdmin };
+export default { authRouter, auth, isAdmin: Controller.isAdmin };
