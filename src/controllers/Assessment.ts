@@ -16,6 +16,9 @@ export default class AssessmentController extends Controller implements Assessme
     this.createOne = this.createOne.bind(this);
     this.listAll = this.listAll.bind(this);
     this.verifyOne = this.verifyOne.bind(this);
+    this.getOne = this.getOne.bind(this);
+    this.updateOne = this.updateOne.bind(this);
+    this.deleteOne = this.deleteOne.bind(this);
   }
 
   async createOne(
@@ -52,6 +55,46 @@ export default class AssessmentController extends Controller implements Assessme
       res,
       next,
       arg: id,
+    });
+  }
+
+  async getOne(req: Request, res: Response, next: NextFunction) {
+    const { getOne } = new this.Service();
+    return this.handleService({
+      method: getOne,
+      res,
+      next,
+      arg: res.locals.assessment,
+    });
+  }
+
+  async updateOne(
+    { body: { title, description, deadline } }: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    const { updateOne } = new this.Service();
+    const data = await updateOne(
+      {
+        title, description, deadline, mentor: res.locals.authorized,
+      },
+      res.locals.assessment,
+    );
+    if (data == null) next('Service error');
+    else {
+      res.locals.assessment = data;
+      res.status(200);
+      next();
+    }
+  }
+
+  async deleteOne(req: Request, res: Response, next: NextFunction) {
+    const { deleteOne } = new this.Service();
+    return this.handleService({
+      method: deleteOne,
+      res,
+      next,
+      arg: res.locals.assessment,
     });
   }
 }

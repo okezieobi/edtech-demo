@@ -1,7 +1,7 @@
 import {
   Entity, Column, ManyToOne, CreateDateColumn, JoinTable,
 } from 'typeorm';
-import { IsString } from 'class-validator';
+import { IsString, IsDateString } from 'class-validator';
 
 import AppEntity from './Base';
 import UserEntity from './User';
@@ -20,6 +20,7 @@ export default class AssessmentEntity extends AppEntity {
     @JoinTable()
       mentor!: Promise<UserEntity>;
 
-    @CreateDateColumn({ default: new Date() })
-      deadline?: Date;
+    @CreateDateColumn()
+    @IsDateString()
+      deadline!: Date;
 }

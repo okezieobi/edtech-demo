@@ -6,20 +6,14 @@ import { validateOrReject } from 'class-validator';
 
 @Entity()
 export default class AppEntity {
-  constructor(id: string, createdAt: Date, updatedAt: Date) {
-    this.id = id;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-  }
-
     @PrimaryGeneratedColumn('uuid')
-      id: string;
+      id!: string;
 
      @CreateDateColumn({ default: new Date() })
-       createdAt: Date;
+       createdAt!: Date;
 
     @UpdateDateColumn({ default: new Date() })
-      updatedAt: Date;
+      updatedAt!: Date;
 
     @BeforeInsert()
     @BeforeUpdate()
