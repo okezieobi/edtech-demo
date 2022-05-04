@@ -12,7 +12,7 @@ describe('Assessment tests', () => {
   const assessment: AssessmentParams = {
     title: 'title',
     description: 'description',
-    deadline: new Date(),
+    deadline: '2022-09-22',
     mentor: {},
   };
 
@@ -30,5 +30,15 @@ describe('Assessment tests', () => {
     assessment.mentor = registeredUser;
     const savedAssessment = await assessmentRepo.save(assessmentRepo.create(assessment));
     assessmentForTesting = savedAssessment;
+  });
+
+  describe('Testing assessment listing', () => {
+    it('Lists all assessments', async () => {
+      const { listAll } = new AssessmentServices();
+      const { message, data } = await listAll();
+      expect(message).toBeString();
+      expect(message).toEqual('Assessments successfully retrieved');
+      expect(data).toBeArray();
+    });
   });
 });

@@ -9,7 +9,7 @@ interface AssessmentParams {
     title: string;
     description: string;
     mentor: object;
-    deadline: Date;
+    deadline: string;
 }
 
 export default class AssessmentServices implements AssessmentServicesParams {
@@ -32,7 +32,7 @@ export default class AssessmentServices implements AssessmentServicesParams {
     return { message: 'New assessment successfully created', data: { ...newAssessment, mentor: undefined } };
   }
 
-  async listAll(mentor: string) {
+  async listAll(mentor?: string) {
     const repo = await this.repository();
     const query = mentor == null ? {} : { where: { mentor } };
     const data = await repo.find(query);
