@@ -8,10 +8,5 @@ interface IdParam {
 
 export default class IdValidator extends Validator implements IdParam {
     @IsUUID()
-      id: string;
-
-    constructor(id: string) {
-      super();
-      this.id = id;
-    }
+      id!: string;
 }

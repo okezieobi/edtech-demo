@@ -9,12 +9,17 @@ import IdValidator from '../validators/Id';
 class UserRepository extends Repository<UserEntity> {
   // methods not using entity fields come here
   async validateLogin({ email, password }: LoginParams) {
-    return new LoginValidator(email, password)
+    const newLogin = new LoginValidator();
+    newLogin.email = email;
+    newLogin.password = password;
+    return newLogin
       .validate({ validationError: { target: false }, forbidUnknownValues: true });
   }
 
   async validateUserId(id: string) {
-    return new IdValidator(id)
+    const newUserId = new IdValidator();
+    newUserId.id = id;
+    return newUserId
       .validate({ validationError: { target: false }, forbidUnknownValues: true });
   }
 }

@@ -25,13 +25,9 @@ export default abstract class Controller implements ControllerParam {
   async handleService({
     method, res, next, status = 200, arg,
   }: handleServiceParams) {
-    const data = await method(arg).catch(next);
-    if (data == null) next('Service error');
-    else {
-      res.locals[this.key] = data;
-      res.status(status);
-      next();
-    }
+    res.locals[this.key] = await method(arg).catch(next);
+    res.status(status);
+    next();
   }
 
   dispatchResponse(req: Request, res: Response) {

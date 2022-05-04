@@ -29,17 +29,16 @@ export default class UserController extends Controller implements UserController
     this.listAll = this.listAll.bind(this);
   }
 
-  async setJWT(req: Request, res: Response, next: NextFunction) {
-    const token = await new this.Jwt().generate(res.locals.user.data.id).catch(next);
-    if (token == null) next('Server error');
-    else {
+  setJWT(req: Request, res: Response, next: NextFunction) {
+    const { generate } = new this.Jwt();
+    generate(res.locals.user.data.id).then((token) => {
       res.locals.user.data.token = token;
       next();
-    }
+    }).catch(next);
   }
 
   static isAdmin(req: Request, res: Response, next: NextFunction) {
-    if (res.locals.user.role === 'admin') next();
+    if (res.locals.authorized.role === 'admin') next();
     else {
       res.status(403);
       next({ isClient: true, response: { status: 'error', message: 'User must be an admin', data: { timestamp: new Date() } } });
@@ -47,7 +46,7 @@ export default class UserController extends Controller implements UserController
   }
 
   static isRestricted(req: Request, res: Response, next: NextFunction) {
-    if (res.locals.user.role === 'student') {
+    if (res.locals.authorized.role === 'student') {
       res.status(403);
       next({ isClient: true, response: { status: 'error', message: 'User must be an admin or a mentor', data: { timestamp: new Date() } } });
     } else next();
@@ -77,15 +76,15 @@ export default class UserController extends Controller implements UserController
     });
   }
 
-  async auth({ headers: { token } }: Request, res: Response, next: NextFunction) {
-    const payload: any = await new this.Jwt().verify(`${token}`).catch(next);
-    const { auth } = new this.Service();
-    const data = await auth(payload.id).catch(next);
-    if (data == null) next('Service error');
-    else {
-      res.locals.authorized = data;
-      next();
-    }
+  auth({ headers: { token } }: Request, res: Response, next: NextFunction) {
+    const { verify } = new this.Jwt();
+    verify(`${token}`)
+      .then(async ({ id }: any) => {
+        const { auth } = new this.Service();
+        res.locals.authorized = await auth(id).catch(next);
+        next();
+      })
+      .catch(next);
   }
 
   async listAll(req: Request, res: Response, next: NextFunction) {
@@ -128,17 +127,13 @@ export default class UserController extends Controller implements UserController
     next: NextFunction,
   ) {
     const { updateOne } = new this.Service();
-    const data = await updateOne(
+    res.locals.user = await updateOne(
       {
         email, name, password, role,
       },
       res.locals.user,
     ).catch(next);
-    if (data == null) next('Service error');
-    else {
-      res.locals.user = data;
-      next();
-    }
+    next();
   }
 
   async deleteOne(req: Request, res: Response, next: NextFunction) {

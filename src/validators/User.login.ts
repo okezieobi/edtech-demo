@@ -9,16 +9,10 @@ interface LoginParams {
 
 export default class LoginValidator extends Validator implements LoginParams {
     @IsEmail()
-      email: string;
+      email!: string;
 
     @IsString()
-      password: string;
-
-    constructor(email: string, password: string) {
-      super();
-      this.email = email;
-      this.password = password;
-    }
+      password!: string;
 }
 
 export { LoginParams };

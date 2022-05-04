@@ -11,6 +11,8 @@ export default class Jwt implements JwtInterface {
 
   constructor(jsonwebtoken = jwt) {
     this.jwt = jsonwebtoken;
+    this.verify = this.verify.bind(this);
+    this.generate = this.generate.bind(this);
   }
 
   async generate(id: string) {
@@ -24,6 +26,6 @@ export default class Jwt implements JwtInterface {
 
   async verify(token: string) {
     const { jwtSecret } = new Env();
-    return this.jwt.verify(token, jwtSecret ?? '');
+    return this.jwt.verify(token ?? '', jwtSecret ?? '');
   }
 }

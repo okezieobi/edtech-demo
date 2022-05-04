@@ -74,18 +74,13 @@ export default class AssessmentController extends Controller implements Assessme
     next: NextFunction,
   ) {
     const { updateOne } = new this.Service();
-    const data = await updateOne(
+    res.locals.assessment = await updateOne(
       {
         title, description, deadline, mentor: res.locals.authorized,
       },
       res.locals.assessment,
-    );
-    if (data == null) next('Service error');
-    else {
-      res.locals.assessment = data;
-      res.status(200);
-      next();
-    }
+    ).catch(next);
+    next();
   }
 
   async deleteOne(req: Request, res: Response, next: NextFunction) {
