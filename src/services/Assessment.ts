@@ -47,7 +47,11 @@ export default class AssessmentServices implements AssessmentServicesParams {
 
   async getOne(assessment: any) {
     const mentor = await assessment.mentor;
-    return { message: 'Assessment successfully retrieved', data: { ...assessment.data, mentor: { ...mentor, password: undefined } } };
+    const deadline = assessment.deadline.toLocalDateString();
+    return {
+      message: 'Assessment successfully retrieved',
+      data: { ...assessment.data, deadline, mentor: { ...mentor, password: undefined } },
+    };
   }
 
   async updateOne(arg: object, assessment: object) {
@@ -63,3 +67,5 @@ export default class AssessmentServices implements AssessmentServicesParams {
     return { message: 'Assessment successfully updated' };
   }
 }
+
+export { AssessmentParams };

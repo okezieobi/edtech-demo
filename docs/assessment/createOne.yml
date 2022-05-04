@@ -1,0 +1,34 @@
+paths:
+  /assessments:                # path of the user from your endpoint
+    post:                 # endpoint request type (post request)
+      tags:               # Tag property
+        - Assessment            # Value of the tag
+      summary: creates a new assessment as an authenticated mentor or admin
+      security:
+       - headerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/write_assessment'
+      responses:          # server responses
+        201:
+          description: An object with newly created assessment details
+        401:
+          description: Error message object in error property of response body
+        400:
+          description: Error message object in error property of response body
+components:        # Schema definition for request body
+ schemas:
+  write_assessment:
+    type: object
+    properties:
+      title:
+        type: string
+        example: title
+      description:
+        type: string
+        example: description
+      deadline:
+        type: string
+        example: 2022-06-04

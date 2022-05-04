@@ -26,6 +26,6 @@ export default class Jwt implements JwtInterface {
 
   async verify(token: string) {
     const { jwtSecret } = new Env();
-    return this.jwt.verify(token ?? '', jwtSecret ?? '');
+    return this.jwt.verify(token, jwtSecret ?? '');
   }
 }
