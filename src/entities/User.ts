@@ -1,5 +1,5 @@
 import {
-  Entity, Column, BeforeInsert, BeforeUpdate, JoinTable,
+  Entity, Column, BeforeInsert, BeforeUpdate,
   OneToMany,
 } from 'typeorm';
 import { IsEmail, IsIn, IsString } from 'class-validator';
@@ -28,7 +28,6 @@ export default class UserEntity extends AppEntity {
       role?: string = 'student';
 
     @OneToMany(() => AssessmentEntity, (assessment) => assessment.mentor, { onDelete: 'CASCADE' })
-    @JoinTable()
       assessments?: AssessmentEntity[];
 
     @BeforeInsert()

@@ -1,11 +1,11 @@
 import AssessmentServices, { AssessmentParams } from '../src/services/Assessment';
-import assessmentRepository from '../src/repositories/Assessment';
-import userRepository from '../src/repositories/User';
+import AssessmentRepository from '../src/repositories/Assessment';
+import UserRepository from '../src/repositories/User';
 
 describe('Assessment tests', () => {
   const user = {
     name: 'test-username',
-    email: 'test@email.com',
+    email: 'test-assement@email.com',
     password: 'test-password',
   };
 
@@ -19,16 +19,11 @@ describe('Assessment tests', () => {
   let assessmentForTesting: any;
 
   beforeAll(async () => {
-    const userRepo = await userRepository();
-    const assessmentRepo = await assessmentRepository();
-
-    await assessmentRepo.delete({});
-    await userRepo.delete({});
-
-    const registeredUser = await userRepo.save(userRepo.create(user));
+    const registeredUser = await UserRepository.save(UserRepository.create(user));
 
     assessment.mentor = registeredUser;
-    const savedAssessment = await assessmentRepo.save(assessmentRepo.create(assessment));
+    const savedAssessment = await AssessmentRepository
+      .save(AssessmentRepository.create(assessment));
     assessmentForTesting = savedAssessment;
   });
 
@@ -39,6 +34,21 @@ describe('Assessment tests', () => {
       expect(message).toBeString();
       expect(message).toEqual('Assessments successfully retrieved');
       expect(data).toBeArray();
+    });
+  });
+
+  describe('Testing assessment retrieval', () => {
+    it('Retrieves an assessment by its unique id', async () => {
+      const { verifyOne } = new AssessmentServices();
+      const data = await verifyOne(assessmentForTesting.id);
+      expect(data).toBeObject();
+      expect(data).toContainKeys(['id', 'title', 'description', 'mentor', 'deadline', 'createdAt', 'updatedAt']);
+      expect(data.id).toBeString();
+      expect(data.title).toBeString();
+      expect(data.description).toBeString();
+      expect(data.deadline).toBeDate();
+      expect(data.createdAt).toBeDate();
+      expect(data.updatedAt).toBeDate();
     });
   });
 });

@@ -1,12 +1,7 @@
-/* eslint-disable class-methods-use-this */
-import { EntityRepository, Repository } from 'typeorm';
+import AppDataSrc, { AssessmentEntity } from '../db';
 
-import connection, { AssessmentEntity } from '../entities';
+const AssessmentRepository = AppDataSrc.getRepository(AssessmentEntity).extend({
+  // methods not using entity fields come here
+});
 
-@EntityRepository(AssessmentEntity)
-class AssessmentRepository extends Repository<AssessmentEntity> {}
-
-export default async () => {
-  const resolvedConnection = await connection();
-  return resolvedConnection.getCustomRepository(AssessmentRepository);
-};
+export default AssessmentRepository;

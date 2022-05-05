@@ -1,22 +1,22 @@
 /* eslint-disable class-methods-use-this */
-import assessmentRepository from '../repositories/Assessment';
+import AssessmentRepository from '../repositories/Assessment';
 
 interface AssessmentServicesParams {
-repository: typeof assessmentRepository
+Repository: typeof AssessmentRepository
 }
 
 interface AssessmentParams {
     title: string;
     description: string;
-    mentor: object;
+    mentor: any;
     deadline: string;
 }
 
 export default class AssessmentServices implements AssessmentServicesParams {
-  repository: typeof assessmentRepository;
+  Repository: typeof AssessmentRepository;
 
-  constructor(repository = assessmentRepository) {
-    this.repository = repository;
+  constructor(Repository = AssessmentRepository) {
+    this.Repository = Repository;
     this.createOne = this.createOne.bind(this);
     this.listAll = this.listAll.bind(this);
     this.verifyOne = this.verifyOne.bind(this);
@@ -26,44 +26,44 @@ export default class AssessmentServices implements AssessmentServicesParams {
   }
 
   async createOne(arg: AssessmentParams) {
-    const repo = await this.repository();
-    const input = repo.create(arg);
-    const newAssessment = await repo.save(input);
+    const input = this.Repository.create(arg);
+    const newAssessment = await this.Repository.save(input);
     return { message: 'New assessment successfully created', data: { ...newAssessment, mentor: undefined } };
   }
 
-  async listAll(mentor?: string) {
-    const repo = await this.repository();
-    const query = mentor == null ? {} : { where: { mentor } };
-    const data = await repo.find(query);
+  async listAll(mentor: any) {
+    const data = await this.Repository.find({
+      relations: {
+        mentor: {
+          id: true, name: true, email: true,
+        },
+      },
+      where: { mentor },
+    });
     return { message: 'Assessments successfully retrieved', data };
   }
 
   async verifyOne(id: string) {
-    const repo = await this.repository();
-    const data = await repo.findOneOrFail({ where: { id } });
-    return data;
+    return this.Repository.findOneByOrFail({ id });
   }
 
   async getOne(assessment: any) {
-    const mentor = await assessment.mentor;
-    const deadline = assessment.deadline.toLocalDateString();
+    await assessment.mentor;
+
     return {
       message: 'Assessment successfully retrieved',
-      data: { ...assessment.data, deadline, mentor: { ...mentor, password: undefined } },
+      data: { ...assessment },
     };
   }
 
   async updateOne(arg: object, assessment: object) {
-    const repo = await this.repository();
     const input = { ...assessment, ...arg };
-    const data = await repo.save(input);
+    const data = await this.Repository.save(input);
     return { message: 'Assessment successfully updated', data };
   }
 
   async deleteOne(assessment: any) {
-    const repo = await this.repository();
-    await repo.remove(assessment);
+    await this.Repository.remove(assessment);
     return { message: 'Assessment successfully updated' };
   }
 }

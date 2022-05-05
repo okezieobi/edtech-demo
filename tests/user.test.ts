@@ -1,4 +1,4 @@
-import userRepository from '../src/repositories/User';
+import UserRepository from '../src/repositories/User';
 import UserServices from '../src/services/User';
 
 describe('User tests', () => {
@@ -50,9 +50,8 @@ describe('User tests', () => {
   let userForTesting: any;
 
   beforeAll(async () => {
-    const userRepo = await userRepository();
-    const registeredUser = userRepo.create(user);
-    await userRepo.save(registeredUser);
+    const registeredUser = UserRepository.create(user);
+    await UserRepository.save(registeredUser);
     userForTesting = registeredUser;
   });
 

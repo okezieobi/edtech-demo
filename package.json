@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A simple REST API edtech demo",
   "main": "index.js",
-   "scripts": {
+  "scripts": {
     "dev": "NODE_ENV=development DEBUG=edtech-demo:* nodemon --exec babel-node -- src/server.ts --extensions '.ts,.tsx'",
     "release": "npm run clean && npm run build-app && npm run start",
     "clean": "rm -rf dist && mkdir dist",
@@ -41,7 +41,7 @@
     "pg": "^8.7.3",
     "swagger-jsdoc": "latest",
     "swagger-ui-express": "latest",
-    "typeorm": "^0.2.41"
+    "typeorm": "^0.3.6"
   },
   "devDependencies": {
     "@babel/cli": "latest",

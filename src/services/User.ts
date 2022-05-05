@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import userRepository, { LoginParams } from '../repositories/User';
+import UserRepository, { LoginParams } from '../repositories/User';
 
 interface UserServicesParams {
-  repository: typeof userRepository;
+  Repository: typeof UserRepository;
 }
 
 interface SignupParams extends LoginParams {
@@ -12,22 +12,21 @@ interface SignupParams extends LoginParams {
 
 if (process.env.NODE_ENV === 'development') {
   (async () => {
-    const repo = await userRepository();
-    const testAdmin = repo.create({
+    const testAdmin = UserRepository.create({
       name: 'Frank',
       email: 'frank@okezie.com',
       password: 'test',
       role: 'admin',
     });
-    await repo.save(testAdmin);
+    await UserRepository.save(testAdmin);
   })();
 }
 
 export default class UserServices implements UserServicesParams {
-  repository: typeof userRepository;
+  Repository: typeof UserRepository;
 
-  constructor(repository = userRepository) {
-    this.repository = repository;
+  constructor(Repository = UserRepository) {
+    this.Repository = Repository;
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
@@ -36,29 +35,25 @@ export default class UserServices implements UserServicesParams {
   }
 
   async signup(arg: SignupParams) {
-    const repo = await this.repository();
-    const input = repo.create(arg);
-    const newUser = await repo.save(input);
+    const input = this.Repository.create(arg);
+    const newUser = await this.Repository.save(input);
     return { message: 'New user successfully signed up', data: { ...newUser, password: undefined } };
   }
 
   async login({ email, password }: LoginParams) {
-    const repo = await this.repository();
-    await repo.validateLogin({ email, password });
-    const userExists = await repo.findOneOrFail({ where: { email } });
+    await this.Repository.validateLogin({ email, password });
+    const userExists = await this.Repository.findOneOrFail({ where: { email } });
     await userExists.validatePassword(password);
     return { message: 'Registered user successfully signed in', data: { ...userExists, password: undefined } };
   }
 
   async auth(id: string) {
-    const repo = await this.repository();
-    await repo.validateUserId(id);
-    return repo.findOneOrFail({ where: { id } });
+    await this.Repository.validateUserId(id);
+    return this.Repository.findOneByOrFail({ id });
   }
 
   async listAll() {
-    const repo = await this.repository();
-    const data = await repo.find();
+    const data = await this.Repository.find();
     return { message: 'Users successfully retrieved', data };
   }
 
@@ -67,15 +62,13 @@ export default class UserServices implements UserServicesParams {
   }
 
   async updateOne(arg: object, user: object) {
-    const repo = await this.repository();
     const data = { ...user, ...arg };
-    const updatedUser = await repo.save(data);
+    const updatedUser = await this.Repository.save(data);
     return { message: 'User successfully updated', data: { ...updatedUser, password: undefined } };
   }
 
   async deleteOne(user: any) {
-    const repo = await this.repository();
-    await repo.remove(user);
+    await this.Repository.remove(user);
     return { message: 'User successfully deleted' };
   }
 }

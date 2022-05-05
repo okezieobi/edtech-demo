@@ -1,6 +1,5 @@
-import connection from '../src/entities';
+import AppDataSrc from '../src/db';
 
 afterAll(async () => {
-  const resolvedConnection = await connection();
-  if (resolvedConnection.isConnected) await resolvedConnection.close();
+  if (AppDataSrc.isInitialized) await AppDataSrc.destroy();
 });
