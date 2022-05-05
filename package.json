@@ -41,7 +41,8 @@
     "pg": "^8.7.3",
     "swagger-jsdoc": "latest",
     "swagger-ui-express": "latest",
-    "typeorm": "^0.3.6"
+    "typeorm": "^0.3.6",
+    "typeorm-extension": "^2.1.1"
   },
   "devDependencies": {
     "@babel/cli": "latest",

@@ -1,10 +1,9 @@
 import {
-  Entity, PrimaryGeneratedColumn, BeforeUpdate,
+  PrimaryGeneratedColumn, BeforeUpdate,
   CreateDateColumn, UpdateDateColumn, BeforeInsert,
 } from 'typeorm';
 import { validateOrReject } from 'class-validator';
 
-@Entity()
 export default class AppEntity {
     @PrimaryGeneratedColumn('uuid')
       id!: string;

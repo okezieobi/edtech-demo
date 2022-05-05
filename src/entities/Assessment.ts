@@ -3,7 +3,7 @@ import {
 } from 'typeorm';
 import { IsString, IsDateString } from 'class-validator';
 
-import AppEntity from './Base';
+import AppEntity from './App';
 import UserEntity from './User';
 
 @Entity()

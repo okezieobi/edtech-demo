@@ -1,22 +1,35 @@
 /* eslint-disable no-console */
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
+import { runSeeders, SeederOptions } from 'typeorm-extension';
 
 import Env from '../utils/Env';
-import UserEntity from '../entities/User';
-import AssessmentEntity from '../entities/Assessment';
 // sudo -u postgres createdb edtech-api-demo
 
-const AppDataSrc = new DataSource({
+const dataSrcOpts : DataSourceOptions & SeederOptions = {
   type: 'postgres',
   url: new Env().databaseURL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   synchronize: true,
   dropSchema: process.env.NODE_ENV !== 'production',
-  entities: [UserEntity, AssessmentEntity],
-});
+  entities: ['src/entities/*.ts'],
+  seeds: process.env.NODE_ENV !== 'production' ? ['./seeders/*.ts'] : undefined,
+};
 
-AppDataSrc.initialize().catch(console.error);
+const AppDataSrc = new DataSource(dataSrcOpts);
+
+if (process.env.NODE_ENV === 'development') {
+  (async () => {
+    await AppDataSrc.initialize().catch(console.error);
+    await runSeeders(AppDataSrc).catch(console.error);
+  })();
+}
+
+if (process.env.NODE_ENV === 'production') {
+  (async () => {
+    await AppDataSrc.initialize().catch(console.error);
+  })();
+}
 
 export default AppDataSrc;
 
-export { UserEntity, AssessmentEntity };
+export { runSeeders };

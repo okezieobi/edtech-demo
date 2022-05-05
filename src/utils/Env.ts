@@ -3,9 +3,9 @@ import { config } from 'dotenv';
 config();
 
 export default class EnvConfig {
-  databaseURL: string | undefined;
+  databaseURL?: string;
 
-  jwtSecret: string | undefined;
+  jwtSecret?: string;
 
   constructor() {
     this.jwtSecret = process.env.JWT_SECRET;

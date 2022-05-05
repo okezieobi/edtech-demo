@@ -10,17 +10,15 @@ interface SignupParams extends LoginParams {
     role?: string;
 }
 
-if (process.env.NODE_ENV === 'development') {
-  (async () => {
-    const testAdmin = UserRepository.create({
-      name: 'Frank',
-      email: 'frank@okezie.com',
-      password: 'test',
-      role: 'admin',
-    });
-    await UserRepository.save(testAdmin);
-  })();
-}
+// if (process.env.NODE_ENV === 'development') {
+//   const testAdmin = {
+//     name: 'Frank',
+//     email: 'frank@okezie.com',
+//     password: 'test',
+//     role: 'admin',
+//   };
+//   UserRepository.insert(testAdmin);
+// }
 
 export default class UserServices implements UserServicesParams {
   Repository: typeof UserRepository;
@@ -61,14 +59,14 @@ export default class UserServices implements UserServicesParams {
     return { message: 'User successfully retrieved', data: { ...user.data, password: undefined } };
   }
 
-  async updateOne(arg: object, user: object) {
-    const data = { ...user, ...arg };
-    const updatedUser = await this.Repository.save(data);
+  async updateOne(arg: object, user: any) {
+    this.Repository.merge(user, arg);
+    const updatedUser = await this.Repository.save(user);
     return { message: 'User successfully updated', data: { ...updatedUser, password: undefined } };
   }
 
   async deleteOne(user: any) {
-    await this.Repository.remove(user);
+    await this.Repository.delete(user);
     return { message: 'User successfully deleted' };
   }
 }

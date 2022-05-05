@@ -31,7 +31,7 @@ export default class AssessmentServices implements AssessmentServicesParams {
     return { message: 'New assessment successfully created', data: { ...newAssessment, mentor: undefined } };
   }
 
-  async listAll(mentor: any) {
+  async listAll(mentor?: any) {
     const data = await this.Repository.find({
       relations: {
         mentor: {
@@ -56,14 +56,14 @@ export default class AssessmentServices implements AssessmentServicesParams {
     };
   }
 
-  async updateOne(arg: object, assessment: object) {
-    const input = { ...assessment, ...arg };
-    const data = await this.Repository.save(input);
+  async updateOne(arg: object, assessment: any) {
+    this.Repository.merge(assessment, arg);
+    const data = await this.Repository.save(assessment);
     return { message: 'Assessment successfully updated', data };
   }
 
   async deleteOne(assessment: any) {
-    await this.Repository.remove(assessment);
+    await this.Repository.delete(assessment);
     return { message: 'Assessment successfully updated' };
   }
 }

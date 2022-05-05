@@ -1,5 +1,6 @@
 /* eslint-disable class-methods-use-this */
-import AppDataSrc, { UserEntity } from '../db';
+import AppDataSrc from '../db';
+import UserEntity from '../entities/User';
 import LoginValidator, { LoginParams } from '../validators/User.login';
 import IdValidator from '../validators/Id';
 

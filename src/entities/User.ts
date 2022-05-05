@@ -4,7 +4,7 @@ import {
 } from 'typeorm';
 import { IsEmail, IsIn, IsString } from 'class-validator';
 
-import AppEntity from './Base';
+import AppEntity from './App';
 import AssessmentEntity from './Assessment';
 import bcrypt from '../utils/bcrypt';
 import AppError from '../errors';
