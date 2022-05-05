@@ -10,16 +10,6 @@ interface SignupParams extends LoginParams {
     role?: string;
 }
 
-// if (process.env.NODE_ENV === 'development') {
-//   const testAdmin = {
-//     name: 'Frank',
-//     email: 'frank@okezie.com',
-//     password: 'test',
-//     role: 'admin',
-//   };
-//   UserRepository.insert(testAdmin);
-// }
-
 export default class UserServices implements UserServicesParams {
   Repository: typeof UserRepository;
 
@@ -40,7 +30,12 @@ export default class UserServices implements UserServicesParams {
 
   async login({ email, password }: LoginParams) {
     await this.Repository.validateLogin({ email, password });
-    const userExists = await this.Repository.findOneOrFail({ where: { email } });
+    const userExists = await this.Repository.findOneOrFail({
+      where: { email },
+      select: {
+        id: true, password: true, name: true, email: true, createdAt: true, updatedAt: true,
+      },
+    });
     await userExists.validatePassword(password);
     return { message: 'Registered user successfully signed in', data: { ...userExists, password: undefined } };
   }

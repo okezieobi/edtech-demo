@@ -11,15 +11,15 @@ import AppError from '../errors';
 
 @Entity()
 export default class UserEntity extends AppEntity {
-   @Column({ unique: true, type: 'text', nullable: false })
+   @Column({ unique: true, type: 'text' })
     @IsEmail()
      email!: string;
 
-    @Column({ nullable: false, type: 'text' })
+    @Column({ type: 'text' })
     @IsString()
       name!: string;
 
-    @Column({ nullable: false, type: 'text' })
+    @Column({ select: false, type: 'text' })
     @IsString()
       password!: string;
 
@@ -27,7 +27,7 @@ export default class UserEntity extends AppEntity {
     @IsIn(['student', 'mentor', 'admin'])
       role?: string = 'student';
 
-    @OneToMany(() => AssessmentEntity, (assessment) => assessment.mentor, { onDelete: 'CASCADE' })
+    @OneToMany(() => AssessmentEntity, (assessment) => assessment.mentor, { nullable: true, onDelete: 'CASCADE' })
       assessments?: AssessmentEntity[];
 
     @BeforeInsert()

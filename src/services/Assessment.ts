@@ -34,22 +34,24 @@ export default class AssessmentServices implements AssessmentServicesParams {
   async listAll(mentor?: any) {
     const data = await this.Repository.find({
       relations: {
-        mentor: {
-          id: true, name: true, email: true,
-        },
+        mentor: true,
+      },
+      select: {
+        title: true, id: true, deadline: true, createdAt: true,
       },
       where: { mentor },
+      order: {
+        updatedAt: 'DESC',
+      },
     });
     return { message: 'Assessments successfully retrieved', data };
   }
 
   async verifyOne(id: string) {
-    return this.Repository.findOneByOrFail({ id });
+    return this.Repository.findOneOrFail({ where: { id }, relations: { mentor: true } });
   }
 
-  async getOne(assessment: any) {
-    await assessment.mentor;
-
+  getOne(assessment: any) {
     return {
       message: 'Assessment successfully retrieved',
       data: { ...assessment },

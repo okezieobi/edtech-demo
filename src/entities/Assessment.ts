@@ -8,18 +8,18 @@ import UserEntity from './User';
 
 @Entity()
 export default class AssessmentEntity extends AppEntity {
-    @Column({ nullable: false, type: 'text' })
+    @Column({ type: 'text' })
     @IsString()
       title!: string;
 
-    @Column({ nullable: false, type: 'text' })
+    @Column({ type: 'text' })
     @IsString()
       description!: string;
 
-    @ManyToOne(() => UserEntity, (mentor) => mentor.assessments, { nullable: false })
+    @ManyToOne(() => UserEntity, (mentor) => mentor.assessments)
       mentor!: UserEntity;
 
-    @Column({ nullable: false, type: 'timestamptz' })
+    @Column({ type: 'timestamptz' })
     @IsDateString()
       deadline!: Date;
 }
