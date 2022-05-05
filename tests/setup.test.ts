@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import AppDataSrc, { runSeeders } from '../src/db';
 
 beforeAll(async () => {
