@@ -26,6 +26,6 @@ assessmentRouter.route('/:id')
 
 assessmentRouter.route('/:id/admin')
   .put([userRoutes.isAdmin, updateOne], dispatchResponse)
-  .put([userRoutes.isAdmin, deleteOne], dispatchResponse);
+  .delete([userRoutes.isAdmin, deleteOne], dispatchResponse);
 
 export default assessmentRouter;

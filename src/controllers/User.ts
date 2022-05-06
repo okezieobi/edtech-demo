@@ -41,14 +41,14 @@ export default class UserController extends Controller implements UserController
     if (res.locals.authorized.role === 'admin') next();
     else {
       res.status(403);
-      next({ isClient: true, response: { status: 'error', message: 'User must be an admin', data: { timestamp: new Date() } } });
+      next({ isClient: true, response: { status: 'error', message: 'User role must be admin', data: { timestamp: new Date() } } });
     }
   }
 
   static isRestricted(req: Request, res: Response, next: NextFunction) {
     if (res.locals.authorized.role === 'student') {
       res.status(403);
-      next({ isClient: true, response: { status: 'error', message: 'User must be an admin or a mentor', data: { timestamp: new Date() } } });
+      next({ isClient: true, response: { status: 'error', message: 'User role must be admin or a mentor', data: { timestamp: new Date() } } });
     } else next();
   }
 

@@ -62,7 +62,7 @@ export default class AssessmentController extends Controller implements Assessme
   static isOwner(req: Request, res: Response, next: NextFunction) {
     if (res.locals.authorized.id !== res.locals.assessment.mentor.id) {
       res.status(403);
-      next({ isClient: true, response: { status: 'error', message: 'Mentors can only edit or delete they own', data: { timestamp: new Date() } } });
+      next({ isClient: true, response: { status: 'error', message: 'Users with role as mentor can only edit or delete they own', data: { timestamp: new Date() } } });
     } else next();
   }
 

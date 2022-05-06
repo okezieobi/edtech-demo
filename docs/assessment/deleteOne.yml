@@ -1,0 +1,25 @@
+paths:
+  /assessments/{id}:                # path of the user from your endpoint
+    delete:                 # endpoint request type (post request)
+      tags:               # Tag property
+        - Assessment            # Value of the tag
+      summary: deletes own existing assessment as an authorized mentor
+      parameters:
+        - name: id
+          in: path
+          description: The id of assessment to be deleted.
+          schema:
+            type: string
+      security:
+       - headerAuth: []
+      responses:          # server responses
+        200:
+          description: An object with newly created assessment details
+        401:
+          description: Error message object in error property of response body
+        400:
+          description: Error message object in error property of response body
+        404:
+          description: Error message object in error property of response body
+        403:
+          description: Error message object in error property of response body

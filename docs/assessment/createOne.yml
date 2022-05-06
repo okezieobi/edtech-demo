@@ -18,6 +18,8 @@ paths:
           description: Error message object in error property of response body
         400:
           description: Error message object in error property of response body
+        403:
+          description: Error message object in error property of response body
 components:        # Schema definition for request body
  schemas:
   create_assessment:
