@@ -1,7 +1,16 @@
 import AssessmentServices from '../src/services/Assessment';
-import { testAssessmentArg, testUserAssessmentArg } from '../seeders/Assessment';
+import { testAssessmentArg, testUserAssessmentArg, testAssessmentForDeletion } from '../seeders/Assessment';
 
 describe('Assessment tests', () => {
+  describe('Testing assessment deletion', () => {
+    it('Deletes an existing assessment', async () => {
+      const { deleteOne } = new AssessmentServices();
+      const { message } = await deleteOne(testAssessmentForDeletion.id);
+      expect(message).toBeString();
+      expect(message).toEqual('Assessment successfully deleted');
+    });
+  });
+
   describe('Testing assessment editing', () => {
     it('Edits an existing assessment', async () => {
       const { updateOne } = new AssessmentServices();

@@ -7,6 +7,7 @@ import AssessmentEntity from '../src/entities/Assessment';
 
 const testUserAssessmentArg: any = {};
 const testAssessmentArg: any = {};
+const testAssessmentForDeletion: any = {};
 
 export default class AssessmentSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<any> {
@@ -29,7 +30,16 @@ export default class AssessmentSeeder implements Seeder {
     });
     await repository.save(testAssessment);
     Object.assign(testAssessmentArg, testAssessment);
+
+    const testAssessmentDelete = repository.create({
+      title: 'title',
+      description: 'description',
+      deadline: '2022-09-22',
+      mentor: testUser,
+    });
+    await repository.save(testAssessmentDelete);
+    Object.assign(testAssessmentForDeletion, testAssessmentDelete);
   }
 }
 
-export { testUserAssessmentArg, testAssessmentArg };
+export { testUserAssessmentArg, testAssessmentArg, testAssessmentForDeletion };
