@@ -1,9 +1,9 @@
 paths:
-  /auth/signup:                # path of the user from your endpoint
+  /user:                # path of the user from your endpoint
     post:                 # endpoint request type (post request)
       tags:               # Tag property
         - User            # Value of the tag
-      summary: signs up a new user as a student or mentor or admin
+      summary: creates up a new user as a student or mentor or admin as an authorized admin
       requestBody:
         required: true
         content:

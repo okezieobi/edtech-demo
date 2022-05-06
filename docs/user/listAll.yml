@@ -1,0 +1,15 @@
+paths:
+  /users:                # path of the user from your endpoint
+    get:                 # endpoint request type (post request)
+      tags:               # Tag property
+        - User            # Value of the tag
+      summary: gets all users as an authorized admin.
+      security:
+       - headerAuth: []
+      responses:          # server responses
+        200:
+          description: An object containing an array of users
+        401:
+          description: Error message object in error property of response body
+        403:
+          description: Error message object in error property of response body

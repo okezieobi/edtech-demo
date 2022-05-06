@@ -19,7 +19,7 @@ paths:
               $ref: '#/components/schemas/update_assessment'
       responses:          # server responses
         200:
-          description: An object with newly created assessment details
+          description: An object containg an updated assessment details
         401:
           description: Error message object in error property of response body
         400:

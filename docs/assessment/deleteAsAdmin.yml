@@ -1,9 +1,9 @@
 paths:
-  /assessments/{id}:                # path of the user from your endpoint
+  /assessments/{id}/admin:                # path of the user from your endpoint
     delete:                 # endpoint request type (post request)
       tags:               # Tag property
         - Assessment            # Value of the tag
-      summary: deletes own existing assessment as an authorized mentor
+      summary: deletes an existing assessment as an authorized admin
       parameters:
         - name: id
           in: path
@@ -14,7 +14,7 @@ paths:
        - headerAuth: []
       responses:          # server responses
         200:
-          description: An object with message property confirming assessment deletion
+          description: An object containing a message property confirming assessment deletion
         401:
           description: Error message object in error property of response body
         400:

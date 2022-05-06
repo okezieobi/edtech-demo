@@ -1,21 +1,23 @@
 paths:
-  /assessments/{id}:                # path of the user from your endpoint
+  /users/{id}:                # path of the user from your endpoint
     get:                 # endpoint request type (post request)
       tags:               # Tag property
-        - Assessment            # Value of the tag
-      summary: gets an assessment as an authorized user
+        - User           # Value of the tag
+      summary: gets a user as an authorized admin
       security:
        - headerAuth: []
       parameters:
         - name: id
           in: path
-          description: The id of assessment to be retrieved.
+          description: The id of user to be retrieved.
           schema:
             type: string
       responses:          # server responses
         200:
-          description: An object containing an assessment detail
+          description: An object with user details
         401:
           description: Error message object in error property of response body
         404:
+          description: Error message object in error property of response body
+        403:
           description: Error message object in error property of response body
