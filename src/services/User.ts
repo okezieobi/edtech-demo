@@ -20,6 +20,8 @@ export default class UserServices implements UserServicesParams {
     this.auth = this.auth.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
+    this.listAll = this.listAll.bind(this);
+    this.getOne = this.getOne.bind(this);
   }
 
   async signup(arg: SignupParams) {
@@ -57,7 +59,7 @@ export default class UserServices implements UserServicesParams {
   }
 
   async getOne(user: any) {
-    return { message: 'User successfully retrieved', data: { ...user.data, password: undefined } };
+    return { message: 'User successfully retrieved', data: user };
   }
 
   async updateOne(arg: object, user: any) {

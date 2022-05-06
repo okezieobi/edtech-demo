@@ -12,16 +12,21 @@ const testUserInput: any = {
   password: 'test-password',
 };
 
+const testAdminInput: any = {
+  name: 'Frank',
+  email: 'frank@okezie.com',
+  password: 'test',
+  role: 'admin',
+};
+
+const testAdminEntity: any = {};
+
 export default class UserSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<any> {
     const repository = dataSource.getRepository(UserEntity);
-    const testAdmin = repository.create({
-      name: 'Frank',
-      email: 'frank@okezie.com',
-      password: 'test',
-      role: 'admin',
-    });
+    const testAdmin = repository.create(testAdminInput);
     await repository.save(testAdmin);
+    Object.assign(testAdminEntity, testAdmin);
 
     const testUser = repository.create(testUserInput);
     await repository.save(testUser);
@@ -29,4 +34,4 @@ export default class UserSeeder implements Seeder {
   }
 }
 
-export { testUserEntity, testUserInput };
+export { testUserEntity, testUserInput, testAdminEntity };

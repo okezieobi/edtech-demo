@@ -1,5 +1,8 @@
-import UserServices from '../src/services/User';
-import { testUserEntity, testUserInput } from '../seeders/User';
+import request from 'supertest';
+
+import app from '../src/app';
+import { testUserEntity, testUserInput, testAdminEntity } from '../seeders/User';
+import Jwt from '../src/utils/Jwt';
 
 describe('User tests', () => {
   //   const userReq = {
@@ -41,96 +44,126 @@ describe('User tests', () => {
 
   describe('Testing new user signup', () => {
     it('Should signup new user', async () => {
-      const { signup } = new UserServices();
-      const { message, data } = await signup(newUser);
-      expect(message).toBeString();
-      expect(message).toEqual('New user successfully signed up');
-      expect(data).toBeObject();
-      expect(data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
-      expect(data.id).toBeString();
-      expect(data.name).toBeString();
-      expect(data.name).toEqual(newUser.name);
-      expect(data.email).toBeString();
-      expect(data.email).toEqual(newUser.email);
-      expect(data.role).toBeString();
-      expect(data.role).toEqual('student');
-      expect(data.createdAt).toBeDate();
-      expect(data.updatedAt).toBeDate();
+      const { status, body } = await request(app).post('/api/v1/auth/signup').send(newUser);
+      expect(status).toBeNumber();
+      expect(status).toEqual(201);
+      expect(body).toBeObject();
+      expect(body).toContainKeys(['message', 'status', 'data']);
+      expect(body.message).toBeString();
+      expect(body.message).toEqual('New user successfully signed up');
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('success');
+      expect(body.data).toBeObject();
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'token', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data.id).toBeString();
+      expect(body.data.token).toBeString();
+      expect(body.data.name).toBeString();
+      expect(body.data.name).toEqual(newUser.name);
+      expect(body.data.email).toBeString();
+      expect(body.data.email).toEqual(newUser.email);
+      expect(body.data.role).toBeString();
+      expect(body.data.role).toEqual('student');
+      expect(body.data.createdAt).toBeString();
+      expect(body.data.updatedAt).toBeString();
     });
 
     it('Should signup new mentor', async () => {
-      const { signup } = new UserServices();
-      const { message, data } = await signup(newMentor);
-      expect(message).toBeString();
-      expect(message).toEqual('New user successfully signed up');
-      expect(data).toBeObject();
-      expect(data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
-      expect(data.id).toBeString();
-      expect(data.name).toBeString();
-      expect(data.name).toEqual(newMentor.name);
-      expect(data.email).toBeString();
-      expect(data.email).toEqual(newMentor.email);
-      expect(data.role).toBeString();
-      expect(data.role).toEqual('mentor');
-      expect(data.createdAt).toBeDate();
-      expect(data.updatedAt).toBeDate();
+      const { status, body } = await request(app).post('/api/v1/auth/signup').send(newMentor);
+      expect(status).toBeNumber();
+      expect(status).toEqual(201);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.message).toEqual('New user successfully signed up');
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('success');
+      expect(body.data).toBeObject();
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'token', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data.id).toBeString();
+      expect(body.data.token).toBeString();
+      expect(body.data.name).toBeString();
+      expect(body.data.name).toEqual(newMentor.name);
+      expect(body.data.email).toBeString();
+      expect(body.data.email).toEqual(newMentor.email);
+      expect(body.data.role).toBeString();
+      expect(body.data.role).toEqual('mentor');
+      expect(body.data.createdAt).toBeString();
+      expect(body.data.updatedAt).toBeString();
     });
 
     it('Should signup new admin', async () => {
-      const { signup } = new UserServices();
-      const { message, data } = await signup(newAdmin);
-      expect(message).toBeString();
-      expect(message).toEqual('New user successfully signed up');
-      expect(data).toBeObject();
-      expect(data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
-      expect(data.id).toBeString();
-      expect(data.name).toBeString();
-      expect(data.name).toEqual(newAdmin.name);
-      expect(data.email).toBeString();
-      expect(data.email).toEqual(newAdmin.email);
-      expect(data.role).toBeString();
-      expect(data.role).toEqual('admin');
-      expect(data.createdAt).toBeDate();
-      expect(data.updatedAt).toBeDate();
+      const { status, body } = await request(app).post('/api/v1/auth/signup').send(newAdmin);
+      expect(status).toBeNumber();
+      expect(status).toEqual(201);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.message).toEqual('New user successfully signed up');
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('success');
+      expect(body.data).toBeObject();
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'token', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data.id).toBeString();
+      expect(body.data.token).toBeString();
+      expect(body.data.name).toBeString();
+      expect(body.data.name).toEqual(newAdmin.name);
+      expect(body.data.email).toBeString();
+      expect(body.data.email).toEqual(newAdmin.email);
+      expect(body.data.role).toBeString();
+      expect(body.data.role).toEqual('admin');
+      expect(body.data.createdAt).toBeString();
+      expect(body.data.updatedAt).toBeString();
     });
   });
 
   describe('Testing registered user signing in', () => {
     it('Signs in registered user', async () => {
-      const { login } = new UserServices();
-      const { message, data } = await login({
+      const { status, body } = await request(app).post('/api/v1/auth/login').send({
         email: testUserInput.email,
         password: testUserInput.password,
       });
-      expect(message).toBeString();
-      expect(message).toEqual('Registered user successfully signed in');
-      expect(data).toBeObject();
-      expect(data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
-      expect(data.id).toBeString();
-      expect(data.name).toBeString();
-      expect(data.name).toEqual(testUserInput.name);
-      expect(data.email).toBeString();
-      expect(data.email).toEqual(testUserInput.email);
-      expect(data.role).toBeString();
-      expect(data.role).toEqual('student');
-      expect(data.createdAt).toBeDate();
-      expect(data.updatedAt).toBeDate();
+      expect(status).toBeNumber();
+      expect(status).toEqual(200);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.message).toEqual('Registered user successfully signed in');
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('success');
+      expect(body.data).toBeObject();
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'token', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data.id).toBeString();
+      expect(body.data.token).toBeString();
+      expect(body.data.name).toBeString();
+      expect(body.data.name).toEqual(testUserInput.name);
+      expect(body.data.email).toBeString();
+      expect(body.data.email).toEqual(testUserInput.email);
+      expect(body.data.role).toBeString();
+      expect(body.data.role).toEqual('student');
+      expect(body.data.createdAt).toBeString();
+      expect(body.data.updatedAt).toBeString();
     });
   });
 
-  describe('Testing authentication user', () => {
+  describe('Testing admin user endpoints', () => {
     it('Authenticates user by id', async () => {
-      const { auth } = new UserServices();
-      const data = await auth(testUserEntity.id);
-      expect(data).toBeObject();
-      expect(data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
-      expect(data.id).toBeString();
-      expect(data.name).toBeString();
-      expect(data.email).toBeString();
-      expect(data.role).toBeString();
-      expect(data.role).toEqual('student');
-      expect(data.createdAt).toBeDate();
-      expect(data.updatedAt).toBeDate();
+      const { generate } = new Jwt();
+      const token = await generate(testAdminEntity.id);
+      const { status, body } = await request(app).get(`/api/v1/users/${testUserEntity.id}`)
+        .set('token', token);
+      expect(status).toBeNumber();
+      expect(status).toEqual(200);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.message).toEqual('User successfully retrieved');
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('success');
+      expect(body.data).toBeObject();
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data.id).toBeString();
+      expect(body.data.name).toBeString();
+      expect(body.data.email).toBeString();
+      expect(body.data.role).toBeString();
+      expect(body.data.role).toEqual('student');
+      expect(body.data.createdAt).toBeString();
+      expect(body.data.updatedAt).toBeString();
     });
   });
 });
