@@ -31,19 +31,13 @@ export default class AssessmentServices implements AssessmentServicesParams {
     return { message: 'New assessment successfully created', data: { ...newAssessment, mentor: undefined } };
   }
 
-  async listAll(mentor?: any) {
-    const data = await this.Repository.find({
-      relations: {
-        mentor: true,
-      },
-      select: {
-        title: true, id: true, deadline: true, createdAt: true,
-      },
-      where: { mentor },
-      order: {
-        updatedAt: 'DESC',
-      },
-    });
+  async listAll() {
+    const data = await this.Repository.createQueryBuilder('assessmentEntity')
+      .leftJoinAndSelect('assessmentEntity.mentor', 'mentor')
+      .select(['assessmentEntity.id', 'mentor.id', 'mentor.name', 'mentor.role',
+        'assessmentEntity.title', 'assessmentEntity.deadline', 'assessmentEntity.createdAt'])
+      .orderBy('assessmentEntity.createdAt', 'DESC')
+      .getMany();
     return { message: 'Assessments successfully retrieved', data };
   }
 
@@ -51,7 +45,7 @@ export default class AssessmentServices implements AssessmentServicesParams {
     return this.Repository.findOneOrFail({ where: { id }, relations: { mentor: true } });
   }
 
-  getOne(assessment: any) {
+  async getOne(assessment: any) {
     return {
       message: 'Assessment successfully retrieved',
       data: { ...assessment },
