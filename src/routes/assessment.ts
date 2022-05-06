@@ -4,10 +4,8 @@ import Controller from '../controllers/Assessment';
 import userRoutes from './user';
 
 const {
-  dispatchResponse, createOne, listAll, verifyOne, getOne, updateOne, deleteOne,
+  dispatchResponse, createOne, listAll, verifyOne, getOne, updateOne, deleteOne, isOwner,
 } = new Controller();
-
-const { isOwner } = Controller;
 
 const assessmentRouter = Router();
 

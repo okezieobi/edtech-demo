@@ -59,7 +59,7 @@ export default class AssessmentServices implements AssessmentServicesParams {
   }
 
   async deleteOne(assessment: any) {
-    await this.Repository.delete(assessment);
+    await this.Repository.remove(assessment);
     return { message: 'Assessment successfully deleted' };
   }
 }

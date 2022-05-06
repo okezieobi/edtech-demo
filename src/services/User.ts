@@ -69,7 +69,7 @@ export default class UserServices implements UserServicesParams {
   }
 
   async deleteOne(user: any) {
-    await this.Repository.delete(user);
+    await this.Repository.remove(user);
     return { message: 'User successfully deleted' };
   }
 }

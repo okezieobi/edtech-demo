@@ -113,7 +113,7 @@ export default class UserController extends Controller implements UserController
       method: getOne,
       res,
       next,
-      arg: res.locals.user,
+      arg: res.locals[this.key],
     });
   }
 
@@ -131,7 +131,7 @@ export default class UserController extends Controller implements UserController
       {
         email, name, password, role,
       },
-      res.locals.user,
+      res.locals[this.key],
     ).catch(next);
     next();
   }
@@ -142,7 +142,7 @@ export default class UserController extends Controller implements UserController
       method: deleteOne,
       res,
       next,
-      arg: res.locals.user,
+      arg: res.locals[this.key],
     });
   }
 }

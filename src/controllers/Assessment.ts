@@ -24,6 +24,7 @@ export default class AssessmentController extends Controller implements Assessme
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
+    this.isOwner = this.isOwner.bind(this);
   }
 
   async createOne(
@@ -59,8 +60,8 @@ export default class AssessmentController extends Controller implements Assessme
     next();
   }
 
-  static isOwner(req: Request, res: Response, next: NextFunction) {
-    if (res.locals.authorized.id !== res.locals.assessment.mentor.id) {
+  isOwner(req: Request, res: Response, next: NextFunction) {
+    if (res.locals.authorized.id !== res.locals[this.key].mentor.id) {
       res.status(403);
       next({ isClient: true, response: { status: 'error', message: 'Users with role as mentor can only edit or delete they own', data: { timestamp: new Date() } } });
     } else next();
@@ -72,7 +73,7 @@ export default class AssessmentController extends Controller implements Assessme
       method: getOne,
       res,
       next,
-      arg: res.locals.assessment,
+      arg: res.locals[this.key],
     });
   }
 
@@ -95,7 +96,7 @@ export default class AssessmentController extends Controller implements Assessme
       {
         title, description, deadline, mentor: mentor ?? res.locals.authorized,
       },
-      res.locals.assessment,
+      res.locals[this.key],
     ).catch(next);
     next();
   }
@@ -106,7 +107,7 @@ export default class AssessmentController extends Controller implements Assessme
       method: deleteOne,
       res,
       next,
-      arg: res.locals.assessment,
+      arg: res.locals[this.key],
     });
   }
 }

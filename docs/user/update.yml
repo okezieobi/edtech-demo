@@ -4,6 +4,8 @@ paths:
       tags:               # Tag property
         - User            # Value of the tag
       summary: updates an existing user as an authorized admin
+      security:
+       - headerAuth: []
       parameters:
         - name: id
           in: path
