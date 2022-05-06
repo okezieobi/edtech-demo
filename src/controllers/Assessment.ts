@@ -2,17 +2,22 @@ import { Request, Response, NextFunction } from 'express';
 
 import Controller, { ControllerParam } from '.';
 import AssessmentServices from '../services/Assessment';
+import UserServices from '../services/User';
 
 interface AssessmentControllerParams extends ControllerParam {
-    Service: typeof AssessmentServices;
+  Service: typeof AssessmentServices;
+  UserService: typeof UserServices;
 }
 
 export default class AssessmentController extends Controller implements AssessmentControllerParams {
   Service: typeof AssessmentServices;
 
-  constructor(Service = AssessmentServices, key = 'assessment') {
+  UserService: typeof UserServices;
+
+  constructor(Service = AssessmentServices, UserService = UserServices, key = 'assessment') {
     super(key);
     this.Service = Service;
+    this.UserService = UserService;
     this.createOne = this.createOne.bind(this);
     this.listAll = this.listAll.bind(this);
     this.verifyOne = this.verifyOne.bind(this);
@@ -50,12 +55,15 @@ export default class AssessmentController extends Controller implements Assessme
 
   async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction) {
     const { verifyOne } = new this.Service();
-    return this.handleService({
-      method: verifyOne,
-      res,
-      next,
-      arg: id,
-    });
+    res.locals[this.key] = await verifyOne(id).catch(next);
+    next();
+  }
+
+  static isOwner(req: Request, res: Response, next: NextFunction) {
+    if (res.locals.authorized.id !== res.locals.assessment.mentor.id) {
+      res.status(403);
+      next({ isClient: true, response: { status: 'error', message: 'Mentors can only edit or delete they own', data: { timestamp: new Date() } } });
+    } else next();
   }
 
   async getOne(req: Request, res: Response, next: NextFunction) {
@@ -69,14 +77,23 @@ export default class AssessmentController extends Controller implements Assessme
   }
 
   async updateOne(
-    { body: { title, description, deadline } }: Request,
+    {
+      body: {
+        title, description, deadline, mentorId,
+      },
+    }: Request,
     res: Response,
     next: NextFunction,
   ) {
     const { updateOne } = new this.Service();
-    res.locals.assessment = await updateOne(
+    let mentor: any;
+    if (mentorId != null) {
+      const { auth } = new this.UserService();
+      mentor = await auth(mentorId).catch(next);
+    }
+    res.locals[this.key] = await updateOne(
       {
-        title, description, deadline, mentor: res.locals.authorized,
+        title, description, deadline, mentor: mentor ?? res.locals.authorized,
       },
       res.locals.assessment,
     ).catch(next);

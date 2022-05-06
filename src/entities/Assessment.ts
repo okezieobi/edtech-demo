@@ -28,7 +28,7 @@ export default class AssessmentEntity extends AppEntity {
     @BeforeUpdate()
     validateMentorRole() {
       if (this.mentor.role === 'student') {
-        throw new AppError('Users must be admin or mentor', 'Forbidden');
+        throw new AppError('Users must be admin or mentor', 'Forbidden', { msg: 'Assessment write failed, user role invalid' });
       }
     }
 }

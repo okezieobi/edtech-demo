@@ -1,16 +1,22 @@
 paths:
-  /assessments:                # path of the user from your endpoint
-    post:                 # endpoint request type (post request)
+  /assessments/{id}/admin:                # path of the user from your endpoint
+    put:                 # endpoint request type (post request)
       tags:               # Tag property
         - Assessment            # Value of the tag
-      summary: creates a new assessment as an authorized mentor or admin
+      summary: updates an existing assessment as an authorized admin
+      parameters:
+        - name: id
+          in: path
+          description: The id of assessment to be updated.
+          schema:
+            type: string
       security:
        - headerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/create_assessment'
+              $ref: '#/components/schemas/update_assessment_as_admin'
       responses:          # server responses
         201:
           description: An object with newly created assessment details
@@ -20,19 +26,17 @@ paths:
           description: Error message object in error property of response body
 components:        # Schema definition for request body
  schemas:
-  create_assessment:
+  update_assessment_as_admin:
     type: object
     properties:
       title:
         type: string
-        example: title
+        example: title-update-admin
       description:
         type: string
-        example: description
+        example: description-update-admin
       deadline:
         type: string
         example: 2022-06-04
-    required:
-     - title
-     - description
-     - deadline
+      mentorId:
+        type: string

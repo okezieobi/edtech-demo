@@ -31,7 +31,7 @@ export default class UserController extends Controller implements UserController
 
   setJWT(req: Request, res: Response, next: NextFunction) {
     const { generate } = new this.Jwt();
-    generate(res.locals.user.data.id).then((token) => {
+    generate(res.locals[this.key].data.id).then((token) => {
       res.locals.user.data.token = token;
       next();
     }).catch(next);

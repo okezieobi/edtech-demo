@@ -3,7 +3,7 @@ paths:
     get:                 # endpoint request type (post request)
       tags:               # Tag property
         - Assessment            # Value of the tag
-      summary: gets an assessment as an authenticated user
+      summary: gets an assessment as an authorized user
       security:
        - headerAuth: []
       parameters:

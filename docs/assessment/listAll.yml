@@ -3,11 +3,7 @@ paths:
     get:                 # endpoint request type (post request)
       tags:               # Tag property
         - Assessment            # Value of the tag
-      summary: gets all assessments of all mentors or a specific mentor.
-      parameters:
-       - name: mentor
-         in: query
-         description: mentor id to filter results with.
+      summary: gets all assessments as an authorized user.
       security:
        - headerAuth: []
       responses:          # server responses

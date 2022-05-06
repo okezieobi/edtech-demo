@@ -33,7 +33,13 @@ export default class UserServices implements UserServicesParams {
     const userExists = await this.Repository.findOneOrFail({
       where: { email },
       select: {
-        id: true, password: true, name: true, email: true, createdAt: true, updatedAt: true,
+        id: true,
+        password: true,
+        name: true,
+        role: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
     await userExists.validatePassword(password);
