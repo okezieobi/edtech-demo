@@ -2,8 +2,30 @@ import AssessmentServices from '../src/services/Assessment';
 import { testAssessmentArg, testUserAssessmentArg } from '../seeders/Assessment';
 
 describe('Assessment tests', () => {
+  describe('Testing assessment editing', () => {
+    it('Edits an existing assessment', async () => {
+      const { updateOne } = new AssessmentServices();
+      const { message, data } = await updateOne({
+        title: 'update title',
+      }, testAssessmentArg);
+      expect(message).toBeString();
+      expect(message).toEqual('Assessment successfully updated');
+      expect(data).toBeObject();
+      expect(data).toContainKeys(['id', 'title', 'description', 'mentor', 'deadline', 'createdAt', 'updatedAt']);
+      expect(data.id).toBeString();
+      expect(data.title).toBeString();
+      expect(data.title).toEqual('update title');
+      expect(data.description).toBeString();
+      expect(data.description).toEqual(testAssessmentArg.description);
+      expect(data.mentor).toBeObject();
+      expect(data.deadline).toBeString();
+      expect(data.createdAt).toBeDate();
+      expect(data.updatedAt).toBeDate();
+    });
+  });
+
   describe('Testing assessment creation', () => {
-    it('Creates an assessment as an authorized mentor or admin', async () => {
+    it('Creates an assessment as a mentor or admin', async () => {
       const { createOne } = new AssessmentServices();
       const { message, data } = await createOne({
         title: testAssessmentArg.title,
@@ -14,7 +36,7 @@ describe('Assessment tests', () => {
       expect(message).toBeString();
       expect(message).toEqual('New assessment successfully created');
       expect(data).toBeObject();
-      expect(data).toContainKeys(['id', 'title', 'description', 'mentor', 'deadline', 'createdAt', 'updatedAt']);
+      expect(data).toContainKeys(['id', 'title', 'description', 'deadline', 'createdAt', 'updatedAt']);
       expect(data.id).toBeString();
       expect(data.title).toBeString();
       expect(data.title).toEqual(testAssessmentArg.title);
@@ -44,6 +66,7 @@ describe('Assessment tests', () => {
       expect(data.id).toBeString();
       expect(data.title).toBeString();
       expect(data.description).toBeString();
+      expect(data.mentor).toBeObject();
       expect(data.deadline).toBeDate();
       expect(data.createdAt).toBeDate();
       expect(data.updatedAt).toBeDate();
