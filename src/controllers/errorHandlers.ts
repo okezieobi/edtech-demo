@@ -57,7 +57,7 @@ const handleEntityNotFoundErr = (err: Error, req: Request, res: Response, next: 
   } else next(err);
 };
 
-const handleSQLValidationErr = (err: Error, req: Request, res: Response, next: NextFunction) => {
+const handleSQLErr = (err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof QueryFailedError) {
     res.status(400);
     next({
@@ -114,7 +114,7 @@ const dispatchClientError = ((
 export default [
   handleJwtError,
   handleEntityNotFoundErr,
-  handleSQLValidationErr,
+  handleSQLErr,
   handleValidationError,
   handleCustomError,
   dispatchClientError];

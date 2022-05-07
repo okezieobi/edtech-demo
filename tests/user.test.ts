@@ -1,7 +1,9 @@
 import request from 'supertest';
 
 import app from '../src/app';
-import { testUserEntity, testUserInput, testAdminEntity } from '../seeders/User';
+import {
+  testUserEntity, testUserInput, testAdminEntity, testUserDelete,
+} from '../seeders/User';
 import Jwt from '../src/utils/Jwt';
 
 describe('User tests', () => {
@@ -49,6 +51,20 @@ describe('User tests', () => {
   };
 
   describe('Testing new user signup', () => {
+    describe('Testing user deletion', () => {
+      it('Deletes a user as an authorized admin', async () => {
+        const { generate } = new Jwt();
+        const token = await generate(testAdminEntity.id);
+        const { status, body } = await request(app)
+          .delete(`/api/v1/users/${testUserDelete.id}`).set('token', token);
+        expect(status).toBeNumber();
+        expect(status).toEqual(200);
+        expect(body).toBeObject();
+        expect(body.message).toBeString();
+        expect(body.message).toEqual('User successfully deleted');
+      });
+    });
+
     describe('Testing user editing', () => {
       it('Edits a user using its unique id as an authorized admin', async () => {
         const { generate } = new Jwt();
@@ -90,9 +106,20 @@ describe('User tests', () => {
         expect(body.status).toEqual('success');
         expect(body.data).toBeArray();
       });
+
+      it('Errors if token is invalid', async () => {
+        const { status, body } = await request(app).get('/api/v1/users');
+        expect(status).toBeNumber();
+        expect(status).toEqual(401);
+        expect(body).toBeObject();
+        expect(body.message).toBeString();
+        expect(body.status).toBeString();
+        expect(body.status).toEqual('error');
+        expect(body.data).toBeObject();
+      });
     });
 
-    it('Should signup new user', async () => {
+    it('Signs up new user', async () => {
       const { status, body } = await request(app).post('/api/v1/auth/signup').send(newUser);
       expect(status).toBeNumber();
       expect(status).toEqual(201);
@@ -116,7 +143,7 @@ describe('User tests', () => {
       expect(body.data.updatedAt).toBeString();
     });
 
-    it('Should signup new mentor', async () => {
+    it('Signs up new mentor', async () => {
       const { status, body } = await request(app).post('/api/v1/auth/signup').send(newMentor);
       expect(status).toBeNumber();
       expect(status).toEqual(201);
@@ -139,7 +166,7 @@ describe('User tests', () => {
       expect(body.data.updatedAt).toBeString();
     });
 
-    it('Should signup new admin', async () => {
+    it('Signs up new admin', async () => {
       const { status, body } = await request(app).post('/api/v1/auth/signup').send(newAdmin);
       expect(status).toBeNumber();
       expect(status).toEqual(201);
@@ -160,6 +187,17 @@ describe('User tests', () => {
       expect(body.data.role).toEqual('admin');
       expect(body.data.createdAt).toBeString();
       expect(body.data.updatedAt).toBeString();
+    });
+
+    it('Errors if user email is already signed up', async () => {
+      const { status, body } = await request(app).post('/api/v1/auth/signup').send(testUserInput);
+      expect(status).toBeNumber();
+      expect(status).toEqual(400);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('error');
+      expect(body.data).toBeObject();
     });
   });
 
@@ -188,6 +226,34 @@ describe('User tests', () => {
       expect(body.data.role).toEqual('student');
       expect(body.data.createdAt).toBeString();
       expect(body.data.updatedAt).toBeString();
+    });
+
+    it('Errors if password is incorrect', async () => {
+      const { status, body } = await request(app).post('/api/v1/auth/login').send({
+        email: testUserInput.email,
+        password: 'wrong password',
+      });
+      expect(status).toBeNumber();
+      expect(status).toEqual(401);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('error');
+      expect(body.data).toBeObject();
+    });
+
+    it('Errors if user email is not signed up', async () => {
+      const { status, body } = await request(app).post('/api/v1/auth/login').send({
+        email: 'wrong@email.com',
+        password: testUserInput.password,
+      });
+      expect(status).toBeNumber();
+      expect(status).toEqual(404);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('error');
+      expect(body.data).toBeObject();
     });
   });
 
