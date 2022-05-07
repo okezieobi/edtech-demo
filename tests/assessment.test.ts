@@ -6,7 +6,7 @@ import { testAssessmentArg, testUserAssessmentArg, testAssessmentForDeletion } f
 
 describe('Assessment tests', () => {
   describe('Testing assessment deletion', () => {
-    it('Deletes an existing assessment', async () => {
+    it('Deletes own existing assessment as an authorized mentor', async () => {
       const { generate } = new Jwt();
       const token = await generate(testUserAssessmentArg.id);
       const { status, body } = await request(app).delete(`/api/v1/assessments/${testAssessmentForDeletion.id}`)
@@ -20,7 +20,7 @@ describe('Assessment tests', () => {
   });
 
   describe('Testing assessment editing', () => {
-    it('Edits an existing assessment', async () => {
+    it('Edits own existing assessment as an authorized mentor', async () => {
       const { generate } = new Jwt();
       const token = await generate(testUserAssessmentArg.id);
       const { status, body } = await request(app).put(`/api/v1/assessments/${testAssessmentArg.id}`).send({
@@ -50,7 +50,7 @@ describe('Assessment tests', () => {
   });
 
   describe('Testing assessment creation', () => {
-    it('Creates an assessment as a mentor or admin', async () => {
+    it('Creates an assessment as an authorized mentor or admin', async () => {
       const { generate } = new Jwt();
       const token = await generate(testUserAssessmentArg.id);
       const { status, body } = await request(app).post('/api/v1/assessments').send({
@@ -80,7 +80,7 @@ describe('Assessment tests', () => {
   });
 
   describe('Testing assessment listing', () => {
-    it('Lists all assessments', async () => {
+    it('Lists all assessments as an authorized user', async () => {
       const { generate } = new Jwt();
       const token = await generate(testUserAssessmentArg.id);
       const { status, body } = await request(app).get('/api/v1/assessments').set('token', token);
@@ -95,7 +95,7 @@ describe('Assessment tests', () => {
   });
 
   describe('Testing assessment retrieval', () => {
-    it('Retrieves an assessment by its unique id', async () => {
+    it('Retrieves an assessment by its unique id as an authorized user', async () => {
       const { generate } = new Jwt();
       const token = await generate(testUserAssessmentArg.id);
       const { status, body } = await request(app).get(`/api/v1/assessments/${testAssessmentArg.id}`).set('token', token);
