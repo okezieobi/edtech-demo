@@ -8,10 +8,10 @@ export default class AppEntity {
     @PrimaryGeneratedColumn('uuid')
       id!: string;
 
-     @CreateDateColumn({ default: new Date() })
+     @CreateDateColumn()
        createdAt!: Date;
 
-    @UpdateDateColumn({ default: new Date() })
+    @UpdateDateColumn()
       updatedAt!: Date;
 
     @BeforeInsert()

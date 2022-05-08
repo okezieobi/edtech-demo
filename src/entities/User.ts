@@ -3,6 +3,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { IsEmail, IsIn, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 import AppEntity from './App';
 import AssessmentEntity from './Assessment';
@@ -27,6 +28,7 @@ export default class UserEntity extends AppEntity {
     @IsIn(['student', 'mentor', 'admin'])
       role?: string = 'student';
 
+    @Type(() => AssessmentEntity)
     @OneToMany(() => AssessmentEntity, (assessment) => assessment.mentor, { nullable: true, onDelete: 'CASCADE' })
       assessments?: AssessmentEntity[];
 
