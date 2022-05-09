@@ -22,8 +22,10 @@ assessmentRouter.route('/:id')
   .put([isOwner, updateOne], dispatchResponse)
   .delete([isOwner, deleteOne], dispatchResponse);
 
+assessmentRouter.use('/:id/admin', userRoutes.isAdmin);
+
 assessmentRouter.route('/:id/admin')
-  .put([userRoutes.isAdmin, updateOne], dispatchResponse)
-  .delete([userRoutes.isAdmin, deleteOne], dispatchResponse);
+  .put(updateOne, dispatchResponse)
+  .delete(deleteOne, dispatchResponse);
 
 export default assessmentRouter;
