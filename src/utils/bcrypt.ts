@@ -6,7 +6,7 @@ export default {
     return bcrypt.hash(`${arg}`, salt);
   },
 
-  async compareString(arg: string, hashedArg: string) {
+  async compareString(arg: string, hashedArg?: string) {
     return bcrypt.compare(`${arg}`, `${hashedArg}`);
   },
 };

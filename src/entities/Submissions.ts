@@ -18,7 +18,7 @@ export default class SubmissionEntity extends AppEntity {
     @ValidateNested({ each: true })
     @Type(() => IsUrl)
     @Column('text', { array: true })
-      links!: string;
+      links!: Array<string>;
 
     @CreateDateColumn()
       submittedAt!: Date;

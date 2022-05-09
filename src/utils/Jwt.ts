@@ -15,7 +15,7 @@ export default class Jwt implements JwtInterface {
     this.generate = this.generate.bind(this);
   }
 
-  async generate(id: string) {
+  async generate(id: string): Promise<string> {
     const { jwtSecret } = new Env();
     return this.jwt.sign({
       id,
@@ -24,7 +24,7 @@ export default class Jwt implements JwtInterface {
     });
   }
 
-  async verify(token: string) {
+  async verify(token: string): Promise<string | jwt.JwtPayload> {
     const { jwtSecret } = new Env();
     return this.jwt.verify(token, jwtSecret ?? '');
   }

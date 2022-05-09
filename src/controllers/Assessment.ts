@@ -31,7 +31,7 @@ export default class AssessmentController extends Controller implements Assessme
     { body: { title, description, deadline } }: Request,
     res: Response,
     next: NextFunction,
-  ) {
+  ): Promise<void> {
     const { createOne } = new this.Service();
     return this.handleService({
       method: createOne,
@@ -44,7 +44,7 @@ export default class AssessmentController extends Controller implements Assessme
     });
   }
 
-  async listAll({ query: { mentor } }: Request, res: Response, next: NextFunction) {
+  async listAll({ query: { mentor } }: Request, res: Response, next: NextFunction): Promise<void> {
     const { listAll } = new this.Service();
     return this.handleService({
       method: listAll,
@@ -54,21 +54,21 @@ export default class AssessmentController extends Controller implements Assessme
     });
   }
 
-  async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction) {
+  async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
     const { verifyOne } = new this.Service();
     res.locals[this.key] = await verifyOne(id).catch(next);
     next();
   }
 
-  isOwner(req: Request, res: Response, next: NextFunction) {
+  isOwner(req: Request, res: Response, next: NextFunction): void {
     if (res.locals.authorized.id !== res.locals[this.key].mentor.id) {
       res.status(403);
       next({ isClient: true, response: { status: 'error', message: 'Users with role as mentor can only edit or delete they own', data: { timestamp: new Date() } } });
     } else next();
   }
 
-  async getOne(req: Request, res: Response, next: NextFunction) {
-    const { getOne } = new this.Service();
+  async getOne(req: Request, res: Response, next: NextFunction): Promise<void> {
+    const { getOne } = this.Service;
     return this.handleService({
       method: getOne,
       res,
@@ -85,9 +85,9 @@ export default class AssessmentController extends Controller implements Assessme
     }: Request,
     res: Response,
     next: NextFunction,
-  ) {
+  ): Promise<void> {
     const { updateOne } = new this.Service();
-    let mentor: any;
+    let mentor: unknown;
     if (mentorId != null) {
       const { auth } = new this.UserService();
       mentor = await auth(mentorId).catch(next);
@@ -101,7 +101,7 @@ export default class AssessmentController extends Controller implements Assessme
     next();
   }
 
-  async deleteOne(req: Request, res: Response, next: NextFunction) {
+  async deleteOne(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { deleteOne } = new this.Service();
     return this.handleService({
       method: deleteOne,

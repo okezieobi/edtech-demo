@@ -54,7 +54,7 @@ export default class UserController extends Controller implements UserController
     body: {
       email, name, password, role,
     },
-  }: Request, res: Response, next: NextFunction) {
+  }: Request, res: Response, next: NextFunction): Promise<void> {
     const { signup } = new this.Service();
     return this.handleService({
       method: signup,
@@ -67,14 +67,14 @@ export default class UserController extends Controller implements UserController
     });
   }
 
-  async login({ body }: Request, res: Response, next: NextFunction) {
+  async login({ body }: Request, res: Response, next: NextFunction): Promise<void> {
     const { login } = new this.Service();
     return this.handleService({
       method: login, res, next, arg: body,
     });
   }
 
-  auth({ headers: { token } }: Request, res: Response, next: NextFunction) {
+  auth({ headers: { token } }: Request, res: Response, next: NextFunction): void {
     const { verify } = new this.Jwt();
     verify(`${token}`)
       .then(async ({ id }: any) => {
@@ -85,7 +85,7 @@ export default class UserController extends Controller implements UserController
       .catch(next);
   }
 
-  async listAll(req: Request, res: Response, next: NextFunction) {
+  async listAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { listAll } = new this.Service();
     return this.handleService({
       method: listAll,
@@ -95,7 +95,7 @@ export default class UserController extends Controller implements UserController
     });
   }
 
-  async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction) {
+  async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
     const { auth } = new this.Service();
     return this.handleService({
       method: auth,
@@ -105,7 +105,7 @@ export default class UserController extends Controller implements UserController
     });
   }
 
-  async getOne(req: Request, res: Response, next: NextFunction) {
+  async getOne(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { getOne } = new this.Service();
     return this.handleService({
       method: getOne,
@@ -123,7 +123,7 @@ export default class UserController extends Controller implements UserController
     }: Request,
     res: Response,
     next: NextFunction,
-  ) {
+  ): Promise<void> {
     const { updateOne } = new this.Service();
     res.locals.user = await updateOne(
       {
@@ -134,7 +134,7 @@ export default class UserController extends Controller implements UserController
     next();
   }
 
-  async deleteOne(req: Request, res: Response, next: NextFunction) {
+  async deleteOne(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { deleteOne } = new this.Service();
     return this.handleService({
       method: deleteOne,

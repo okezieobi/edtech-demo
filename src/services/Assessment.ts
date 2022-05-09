@@ -1,5 +1,4 @@
-/* eslint-disable class-methods-use-this */
-import AssessmentRepository from '../repositories/Assessment';
+import AssessmentRepository, { AssessmentEntity } from '../repositories/Assessment';
 
 interface AssessmentServicesParams {
 Repository: typeof AssessmentRepository
@@ -20,18 +19,18 @@ export default class AssessmentServices implements AssessmentServicesParams {
     this.createOne = this.createOne.bind(this);
     this.listAll = this.listAll.bind(this);
     this.verifyOne = this.verifyOne.bind(this);
-    this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
   }
 
-  async createOne(arg: AssessmentParams) {
+  async createOne(arg: AssessmentParams): Promise<{ message: string, data: AssessmentEntity }> {
     const input = this.Repository.create(arg);
     const newAssessment = await this.Repository.save(input);
-    return { message: 'New assessment successfully created', data: { ...newAssessment, mentor: undefined } };
+    delete newAssessment.mentor;
+    return { message: 'New assessment successfully created', data: newAssessment };
   }
 
-  async listAll() {
+  async listAll(): Promise<{ message: string, data: AssessmentEntity[] }> {
     const data = await this.Repository.createQueryBuilder('assessmentEntity')
       .leftJoinAndSelect('assessmentEntity.mentor', 'mentor')
       .select(['assessmentEntity.id', 'mentor.id', 'mentor.name', 'mentor.role',
@@ -41,24 +40,27 @@ export default class AssessmentServices implements AssessmentServicesParams {
     return { message: 'Assessments successfully retrieved', data };
   }
 
-  async verifyOne(id: string) {
+  async verifyOne(id: string): Promise<AssessmentEntity> {
+    await this.Repository.validateAssessmentId(id);
     return this.Repository.findOneOrFail({ where: { id }, relations: { mentor: true } });
   }
 
-  async getOne(assessment: any) {
+  static async getOne(assessment: AssessmentEntity):
+    Promise<{ message: string, data: AssessmentEntity }> {
     return {
       message: 'Assessment successfully retrieved',
-      data: { ...assessment },
+      data: assessment,
     };
   }
 
-  async updateOne(arg: object, assessment: any) {
+  async updateOne(arg: object, assessment: any):
+    Promise<{ message: string, data: AssessmentEntity }> {
     this.Repository.merge(assessment, arg);
     const data = await this.Repository.save(assessment);
     return { message: 'Assessment successfully updated', data };
   }
 
-  async deleteOne(assessment: any) {
+  async deleteOne(assessment: any): Promise<{ message: string}> {
     await this.Repository.remove(assessment);
     return { message: 'Assessment successfully deleted' };
   }

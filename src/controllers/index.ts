@@ -24,13 +24,13 @@ export default abstract class Controller implements ControllerParam {
 
   async handleService({
     method, res, next, status = 200, arg,
-  }: handleServiceParams) {
+  }: handleServiceParams): Promise<void> {
     res.locals[this.key] = await method(arg).catch(next);
     res.status(status);
     next();
   }
 
-  dispatchResponse(req: Request, res: Response) {
+  dispatchResponse(req: Request, res: Response): void {
     res.send({ status: 'success', ...res.locals[this.key] });
   }
 }

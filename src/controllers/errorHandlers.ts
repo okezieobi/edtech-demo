@@ -21,7 +21,7 @@ const handleJwtError = (
   { headers }: Request,
   res: Response,
   next: NextFunction,
-) => {
+): void => {
   if (err instanceof JsonWebTokenError || err instanceof TokenExpiredError) {
     res.status(401);
     next({
@@ -42,7 +42,12 @@ const handleJwtError = (
   } else next(err);
 };
 
-const handleEntityNotFoundErr = (err: Error, req: Request, res: Response, next: NextFunction) => {
+const handleEntityNotFoundErr = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   if (err instanceof EntityNotFoundError) {
     res.status(404);
     const errMsg:string = err.message.replace(/\s+/gi, ' ');
@@ -57,7 +62,7 @@ const handleEntityNotFoundErr = (err: Error, req: Request, res: Response, next: 
   } else next(err);
 };
 
-const handleSQLErr = (err: Error, req: Request, res: Response, next: NextFunction) => {
+const handleSQLErr = (err: Error, req: Request, res: Response, next: NextFunction): void => {
   if (err instanceof QueryFailedError) {
     res.status(400);
     next({
@@ -71,7 +76,7 @@ const handleSQLErr = (err: Error, req: Request, res: Response, next: NextFunctio
   } else next(err);
 };
 
-const handleValidationError = (err: any, req: Request, res: Response, next: NextFunction) => {
+const handleValidationError = (err: any, req: Request, res: Response, next: NextFunction): void => {
   if (err.constructor.name === 'ValidationError' || err[0] instanceof ValidationError) {
     res.status(400);
     next({
@@ -85,7 +90,12 @@ const handleValidationError = (err: any, req: Request, res: Response, next: Next
   } else next(err);
 };
 
-const handleCustomError = (err: AppError, req: Request, res: Response, next: NextFunction) => {
+const handleCustomError = (
+  err: AppError,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   const error = { status: errorMarkers.status, message: err.message, data: err.data };
   switch (err.type) {
     case 'Authorization':
@@ -106,7 +116,7 @@ const dispatchClientError = ((
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): void => {
   if (err.isClient) res.send(err.response);
   else next(err);
 });

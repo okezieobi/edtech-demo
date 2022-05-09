@@ -21,7 +21,7 @@ export default class AssessmentEntity extends AppEntity {
 
     @Type(() => UserEntity)
     @ManyToOne(() => UserEntity, (mentor) => mentor.assessments)
-      mentor!: UserEntity;
+      mentor?: UserEntity;
 
     @Type(() => SubmissionEntity)
     @OneToMany(() => SubmissionEntity, (submission) => submission.assessment, { onDelete: 'CASCADE', nullable: true })
@@ -33,8 +33,8 @@ export default class AssessmentEntity extends AppEntity {
 
     @BeforeInsert()
     @BeforeUpdate()
-    validateMentorRole() {
-      if (this.mentor.role === 'student') {
+    validateMentorRole(): void {
+      if (this.mentor!.role === 'student') {
         throw new AppError('Users must be admin or mentor', 'Forbidden', { msg: 'Assessment write failed, user role invalid' });
       }
     }

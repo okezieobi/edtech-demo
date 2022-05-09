@@ -22,7 +22,7 @@ export default class UserEntity extends AppEntity {
 
     @Column({ select: false, type: 'text' })
     @IsString()
-      password!: string;
+      password?: string;
 
     @Column({ type: 'text' })
     @IsIn(['student', 'mentor', 'admin'])
@@ -34,11 +34,11 @@ export default class UserEntity extends AppEntity {
 
     @BeforeInsert()
     @BeforeUpdate()
-    async hashPassword() {
+    async hashPassword(): Promise<void> {
       if (this.password != null) this.password = await bcrypt.hashString(this.password);
     }
 
-    async validatePassword(password: string, param: string = 'password') {
+    async validatePassword(password: string, param: string = 'password'): Promise<void> {
       const isValidPassword = await bcrypt.compareString(password, this.password);
       if (!isValidPassword) {
         throw new AppError('Password provided does not match user', 'Authorization', { param, msg: 'Authentication failed, mismatched password' });
