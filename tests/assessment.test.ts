@@ -63,7 +63,7 @@ describe('Assessment tests', () => {
       expect(status).toEqual(201);
       expect(body).toBeObject();
       expect(body.message).toBeString();
-      expect(body.message).toEqual('New assessment successfully created');
+      expect(body.message).toEqual('Assessment successfully created');
       expect(body.status).toBeString();
       expect(body.status).toEqual('success');
       expect(body.data).toBeObject();
