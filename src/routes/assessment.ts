@@ -4,7 +4,8 @@ import Controller from '../controllers/Assessment';
 import userRoutes from './user';
 
 const {
-  dispatchResponse, createOne, listAll, verifyOne, getOne, updateOne, deleteOne, isOwner,
+  dispatchResponse, createOne, listAll, verifyOne, getOne,
+  updateOne, deleteOne, isOwnerMentor, useMentor,
 } = new Controller();
 
 const assessmentRouter = Router();
@@ -18,9 +19,11 @@ assessmentRouter.use(userRoutes.isRestricted);
 
 assessmentRouter.post('/', createOne, dispatchResponse);
 
+assessmentRouter.post('/admin', [useMentor, createOne], dispatchResponse);
+
 assessmentRouter.route('/:id')
-  .put([isOwner, updateOne], dispatchResponse)
-  .delete([isOwner, deleteOne], dispatchResponse);
+  .put([isOwnerMentor, updateOne], dispatchResponse)
+  .delete([isOwnerMentor, deleteOne], dispatchResponse);
 
 assessmentRouter.use('/:id/admin', userRoutes.isAdmin);
 

@@ -2,6 +2,7 @@
 import Services from '.';
 import UserEntity from '../entities/User';
 import LoginValidator, { LoginParams } from '../validators/User.login';
+import AppError from '../errors';
 
 export default class User extends Services {
   constructor(entityClass = UserEntity) {
@@ -24,8 +25,8 @@ export default class User extends Services {
     userParams.email = email;
     userParams.password = password;
     await userParams.validate({ validationError: { target: false }, forbidUnknownValues: true });
-    const repo = this.dataSrc.getRepository(UserEntity);
-    const userExists = await repo.findOneOrFail({
+    const repo = this.dataSrc.getRepository(this.entityClass);
+    const userExists: any = await repo.findOne({
       where: { email },
       select: {
         id: true,
@@ -37,6 +38,7 @@ export default class User extends Services {
         updatedAt: true,
       },
     });
+    if (userExists == null) throw new AppError(`${this.constructor.name} not found`, 'NotFound', { param: 'email', value: email });
     await userExists.validatePassword(password);
     delete userExists.password;
     return { message: 'Registered user successfully signed in', data: userExists };

@@ -6,6 +6,7 @@ interface FindParams {
     relation: string;
     select: Array<string>,
     filter?: string;
+    entity: string;
 }
 
 export default class Services {
@@ -36,7 +37,7 @@ export default class Services {
     entity.id = query.where.id;
     await entity.validate({ validationError: { target }, forbidUnknownValues: true });
     const data = await this.dataSrc.manager.findOne(this.entityClass, query);
-    if (data == null) throw new AppError(`${this.constructor.name} not found`, 'NotFound', { param: '/:id', value: query.where.id });
+    if (data == null) throw new AppError(`${this.constructor.name} not found`, 'NotFound', { param: 'id', value: query.where.id });
     return data;
   }
 
@@ -49,11 +50,10 @@ export default class Services {
 
   async fetchAll(arg: FindParams)
       : Promise<{ message: string, data: Array<unknown> }> {
-    const entity = `${this.constructor.name}`.toLowerCase();
-    const data = await this.dataSrc.manager.createQueryBuilder(this.entityClass, entity)
-      .leftJoinAndSelect(`${entity}.${arg.relation}`, arg.relation)
+    const data = await this.dataSrc.manager.createQueryBuilder(this.entityClass, arg.entity)
+      .leftJoinAndSelect(`${arg.entity}.${arg.relation}`, arg.relation)
       .select(arg.select)
-      .orderBy(`${entity}.createdAt`, 'DESC')
+      .orderBy(`${arg.entity}.createdAt`, 'DESC')
       .getMany();
     let filtered: any;
     if (arg.filter != null) {

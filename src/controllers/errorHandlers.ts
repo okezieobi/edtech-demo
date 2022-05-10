@@ -105,6 +105,10 @@ const handleCustomError = (
       res.status(403);
       next({ isClient: errorMarkers.isClient, response: error });
       break;
+    case 'NotFound':
+      res.status(404);
+      next({ isClient: errorMarkers.isClient, response: error });
+      break;
     default:
       next(err);
   }

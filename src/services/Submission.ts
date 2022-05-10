@@ -14,6 +14,7 @@ export default class Submission extends Services {
       select: ['submissionEntity.id', 'submissionEntity.links', 'submissionEntity.submittedAt',
         'submissionEntity.assessment.id', 'submissionEntity.assessment.title'],
       filter: owner,
+      entity: 'submissionEntity',
     };
     return this.fetchAll(arg);
   }

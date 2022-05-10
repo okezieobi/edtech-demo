@@ -18,6 +18,8 @@ export default abstract class Controller {
     this.Services = Services;
     this.createOne = this.createOne.bind(this);
     this.getOne = this.getOne.bind(this);
+    this.deleteOne = this.deleteOne.bind(this);
+    this.updateOne = this.deleteOne.bind(this);
     this.dispatchResponse = this.dispatchResponse.bind(this);
     this.handleService = this.handleService.bind(this);
   }
@@ -32,7 +34,6 @@ export default abstract class Controller {
   async getOne(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { getOne } = new this.Services();
     res.locals[this.constructor.name] = await getOne(res.locals[this.constructor.name]);
-    res.status(200);
     next();
   }
 
@@ -40,7 +41,6 @@ export default abstract class Controller {
     const { deleteOne } = new this.Services();
     res.locals[this.constructor.name] = await deleteOne(res.locals[this.constructor.name])
       .catch(next);
-    res.status(200);
     next();
   }
 
@@ -57,17 +57,12 @@ export default abstract class Controller {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { updateOne } = new this.Service();
-    res.locals.user = await updateOne(
-      {
-        email, name, password, role,
-      },
-      res.locals[this.key],
-    ).catch(next);
+    const { updateOne } = new this.Services();
+    res.locals[this.constructor.name] = await updateOne(body, this.constructor.name).catch(next);
     next();
   }
 
   dispatchResponse(req: Request, res: Response): void {
-    res.send({ status: 'success', ...res.locals[this.constructor.name] });
+    res.status(res.statusCode ?? 200).send({ status: 'success', ...res.locals[this.constructor.name] });
   }
 }

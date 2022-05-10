@@ -2,7 +2,7 @@ paths:
   /auth/login:                # path of the user from your endpoint
     post:                 # endpoint request type (post request)
       tags:               # Tag property
-        - User            # Value of the tag
+        - Authorized            # Value of the tag
       summary: signs in a registered user
       requestBody:
         required: true

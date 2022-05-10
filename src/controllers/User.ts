@@ -18,14 +18,13 @@ export default class User extends Controller {
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
     this.verifyOne = this.verifyOne.bind(this);
-    this.deleteOne = this.deleteOne.bind(this);
     this.listAll = this.listAll.bind(this);
   }
 
   setJWT(req: Request, res: Response, next: NextFunction) {
     const { generate } = new this.Jwt();
     generate(res.locals[this.constructor.name].data.id).then((token) => {
-      res.locals.user.data.token = token;
+      res.locals[this.constructor.name].token = token;
       next();
     }).catch(next);
   }

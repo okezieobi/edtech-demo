@@ -12,6 +12,7 @@ export default class Grade extends Services {
     const arg = {
       relation: 'submission',
       select: ['gradeEntity.id', 'gradeEntity.mark', 'gradeEntity.submission.id', 'gradeEntity.createdAt'],
+      entity: 'gradeEntity',
     };
     return this.fetchAll(arg);
   }

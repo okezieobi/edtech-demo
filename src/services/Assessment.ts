@@ -14,6 +14,7 @@ export default class Assessment extends Services {
       select: ['assessmentEntity.id', 'mentor.id', 'mentor.name', 'mentor.role',
         'assessmentEntity.title', 'assessmentEntity.deadline', 'assessmentEntity.createdAt'],
       filter: mentor,
+      entity: 'assessmentEntity',
     };
     return this.fetchAll(arg);
   }
