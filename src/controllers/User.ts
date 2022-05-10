@@ -19,6 +19,7 @@ export default class User extends Controller {
     this.auth = this.auth.bind(this);
     this.verifyOne = this.verifyOne.bind(this);
     this.listAll = this.listAll.bind(this);
+    this.updateOne = this.updateOne.bind(this);
   }
 
   setJWT(req: Request, res: Response, next: NextFunction) {
@@ -95,5 +96,16 @@ export default class User extends Controller {
       next,
       arg: id,
     });
+  }
+
+  async updateOne(
+    { body }: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    const { updateUser } = new this.UserServices();
+    res.locals[this.constructor.name] = await updateUser(body, res.locals[this.constructor.name])
+      .catch(next);
+    next();
   }
 }

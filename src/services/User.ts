@@ -11,6 +11,7 @@ export default class User extends Services {
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
     this.listAll = this.listAll.bind(this);
+    this.updateUser = this.updateUser.bind(this);
   }
 
   async signup(arg: UserEntity): Promise<{ message: string, data: UserEntity }> {
@@ -51,5 +52,12 @@ export default class User extends Services {
   async listAll(): Promise<{ message: string, data: Array<unknown> }> {
     const data = await this.dataSrc.manager.find(this.entityClass);
     return { message: 'Users successfully retrieved', data };
+  }
+
+  async updateUser(arg: object, entity: UserEntity)
+    : Promise<{ message: string, data: UserEntity }> {
+    const result = await super.updateOne(arg, entity);
+    delete result.data.password;
+    return result;
   }
 }

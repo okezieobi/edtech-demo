@@ -50,75 +50,75 @@ describe('User tests', () => {
     role: 'admin',
   };
 
+  describe('Testing users listing', () => {
+    it('Lists all users as an authorized admin', async () => {
+      const { generate } = new Jwt();
+      const token = await generate(testAdminEntity.id);
+      const { status, body } = await request(app).get('/api/v1/users').set('token', token);
+      expect(status).toBeNumber();
+      expect(status).toEqual(200);
+      expect(body.message).toBeString();
+      expect(body.message).toEqual('Users successfully retrieved');
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('success');
+      expect(body.data).toBeArray();
+    });
+
+    it('Errors if token is invalid', async () => {
+      const { status, body } = await request(app).get('/api/v1/users');
+      expect(status).toBeNumber();
+      expect(status).toEqual(401);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('error');
+      expect(body.data).toBeObject();
+    });
+  });
+
+  describe('Testing user deletion', () => {
+    it('Deletes a user as an authorized admin', async () => {
+      const { generate } = new Jwt();
+      const token = await generate(testAdminEntity.id);
+      const { status, body } = await request(app)
+        .delete(`/api/v1/users/${testUserDelete.id}`).set('token', token);
+      expect(status).toBeNumber();
+      expect(status).toEqual(200);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.message).toEqual('User successfully deleted');
+    });
+  });
+
+  describe('Testing user editing', () => {
+    it('Edits a user using its unique id as an authorized admin', async () => {
+      const { generate } = new Jwt();
+      const token = await generate(testAdminEntity.id);
+      const { status, body } = await request(app).put(`/api/v1/users/${testAdminEntity.id}`)
+        .send(updateUser)
+        .set('token', token);
+      expect(status).toBeNumber();
+      expect(status).toEqual(200);
+      expect(body).toBeObject();
+      expect(body.message).toBeString();
+      expect(body.message).toEqual('User successfully updated');
+      expect(body.status).toBeString();
+      expect(body.status).toEqual('success');
+      expect(body.data).toBeObject();
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data.id).toBeString();
+      expect(body.data.name).toBeString();
+      expect(body.data.name).toEqual(updateUser.name);
+      expect(body.data.email).toBeString();
+      expect(body.data.email).toEqual(updateUser.email);
+      expect(body.data.role).toBeString();
+      expect(body.data.role).toEqual('admin');
+      expect(body.data.createdAt).toBeString();
+      expect(body.data.updatedAt).toBeString();
+    });
+  });
+
   describe('Testing new user signup', () => {
-    describe('Testing user deletion', () => {
-      it('Deletes a user as an authorized admin', async () => {
-        const { generate } = new Jwt();
-        const token = await generate(testAdminEntity.id);
-        const { status, body } = await request(app)
-          .delete(`/api/v1/users/${testUserDelete.id}`).set('token', token);
-        expect(status).toBeNumber();
-        expect(status).toEqual(200);
-        expect(body).toBeObject();
-        expect(body.message).toBeString();
-        expect(body.message).toEqual('User successfully deleted');
-      });
-    });
-
-    describe('Testing user editing', () => {
-      it('Edits a user using its unique id as an authorized admin', async () => {
-        const { generate } = new Jwt();
-        const token = await generate(testAdminEntity.id);
-        const { status, body } = await request(app).put(`/api/v1/users/${testAdminEntity.id}`)
-          .send(updateUser)
-          .set('token', token);
-        expect(status).toBeNumber();
-        expect(status).toEqual(200);
-        expect(body).toBeObject();
-        expect(body.message).toBeString();
-        expect(body.message).toEqual('User successfully updated');
-        expect(body.status).toBeString();
-        expect(body.status).toEqual('success');
-        expect(body.data).toBeObject();
-        expect(body.data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
-        expect(body.data.id).toBeString();
-        expect(body.data.name).toBeString();
-        expect(body.data.name).toEqual(updateUser.name);
-        expect(body.data.email).toBeString();
-        expect(body.data.email).toEqual(updateUser.email);
-        expect(body.data.role).toBeString();
-        expect(body.data.role).toEqual('admin');
-        expect(body.data.createdAt).toBeString();
-        expect(body.data.updatedAt).toBeString();
-      });
-    });
-
-    describe('Testing users listing', () => {
-      it('Lists all users as an authorized admin', async () => {
-        const { generate } = new Jwt();
-        const token = await generate(testAdminEntity.id);
-        const { status, body } = await request(app).get('/api/v1/users').set('token', token);
-        expect(status).toBeNumber();
-        expect(status).toEqual(200);
-        expect(body.message).toBeString();
-        expect(body.message).toEqual('Users successfully retrieved');
-        expect(body.status).toBeString();
-        expect(body.status).toEqual('success');
-        expect(body.data).toBeArray();
-      });
-
-      it('Errors if token is invalid', async () => {
-        const { status, body } = await request(app).get('/api/v1/users');
-        expect(status).toBeNumber();
-        expect(status).toEqual(401);
-        expect(body).toBeObject();
-        expect(body.message).toBeString();
-        expect(body.status).toBeString();
-        expect(body.status).toEqual('error');
-        expect(body.data).toBeObject();
-      });
-    });
-
     it('Signs up new user', async () => {
       const { status, body } = await request(app).post('/api/v1/auth/signup').send(newUser);
       expect(status).toBeNumber();
@@ -129,10 +129,10 @@ describe('User tests', () => {
       expect(body.message).toEqual('New user successfully signed up');
       expect(body.status).toBeString();
       expect(body.status).toEqual('success');
+      expect(body.token).toBeString();
       expect(body.data).toBeObject();
-      expect(body.data).toContainKeys(['name', 'email', 'id', 'token', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
       expect(body.data.id).toBeString();
-      expect(body.data.token).toBeString();
       expect(body.data.name).toBeString();
       expect(body.data.name).toEqual(newUser.name);
       expect(body.data.email).toBeString();
@@ -152,10 +152,10 @@ describe('User tests', () => {
       expect(body.message).toEqual('New user successfully signed up');
       expect(body.status).toBeString();
       expect(body.status).toEqual('success');
+      expect(body.token).toBeString();
       expect(body.data).toBeObject();
-      expect(body.data).toContainKeys(['name', 'email', 'id', 'token', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
       expect(body.data.id).toBeString();
-      expect(body.data.token).toBeString();
       expect(body.data.name).toBeString();
       expect(body.data.name).toEqual(newMentor.name);
       expect(body.data.email).toBeString();
@@ -175,10 +175,10 @@ describe('User tests', () => {
       expect(body.message).toEqual('New user successfully signed up');
       expect(body.status).toBeString();
       expect(body.status).toEqual('success');
+      expect(body.token).toBeString();
       expect(body.data).toBeObject();
-      expect(body.data).toContainKeys(['name', 'email', 'id', 'token', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
       expect(body.data.id).toBeString();
-      expect(body.data.token).toBeString();
       expect(body.data.name).toBeString();
       expect(body.data.name).toEqual(newAdmin.name);
       expect(body.data.email).toBeString();
@@ -214,10 +214,10 @@ describe('User tests', () => {
       expect(body.message).toEqual('Registered user successfully signed in');
       expect(body.status).toBeString();
       expect(body.status).toEqual('success');
+      expect(body.token).toBeString();
       expect(body.data).toBeObject();
-      expect(body.data).toContainKeys(['name', 'email', 'id', 'token', 'role', 'createdAt', 'updatedAt']);
+      expect(body.data).toContainKeys(['name', 'email', 'id', 'role', 'createdAt', 'updatedAt']);
       expect(body.data.id).toBeString();
-      expect(body.data.token).toBeString();
       expect(body.data.name).toBeString();
       expect(body.data.name).toEqual(testUserInput.name);
       expect(body.data.email).toBeString();

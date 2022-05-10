@@ -62,7 +62,7 @@ export default class Services {
     return { message: `${this.constructor.name}s successfully retrieved`, data: filtered ?? data };
   }
 
-  async updateOne(arg: object, entity: any): Promise<{ message: string, data: unknown }> {
+  async updateOne(arg: object, entity: any): Promise<{ message: string, data: any }> {
     this.dataSrc.manager.merge(this.entityClass, entity, arg);
     await this.dataSrc.manager.save(entity);
     return { message: `${this.constructor.name} successfully updated`, data: entity };

@@ -19,7 +19,7 @@ export default abstract class Controller {
     this.createOne = this.createOne.bind(this);
     this.getOne = this.getOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
-    this.updateOne = this.deleteOne.bind(this);
+    this.updateOne = this.updateOne.bind(this);
     this.dispatchResponse = this.dispatchResponse.bind(this);
     this.handleService = this.handleService.bind(this);
   }
@@ -58,7 +58,8 @@ export default abstract class Controller {
     next: NextFunction,
   ): Promise<void> {
     const { updateOne } = new this.Services();
-    res.locals[this.constructor.name] = await updateOne(body, this.constructor.name).catch(next);
+    res.locals[this.constructor.name] = await updateOne(body, res.locals[this.constructor.name])
+      .catch(next);
     next();
   }
 
