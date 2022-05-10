@@ -4,13 +4,13 @@ import {
 import { IsString, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import AppEntity from './App';
+import MainEntity from './Main';
 import UserEntity from './User';
 import SubmissionEntity from './Submissions';
 import AppError from '../errors';
 
 @Entity()
-export default class AssessmentEntity extends AppEntity {
+export default class AssessmentEntity extends MainEntity {
     @Column({ type: 'text' })
     @IsString()
       title!: string;

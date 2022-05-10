@@ -1,39 +1,31 @@
 /* eslint-disable class-methods-use-this */
-import UserRepository, { LoginParams, UserEntity } from '../repositories/User';
+import Services from '.';
+import UserEntity from '../entities/User';
+import LoginValidator, { LoginParams } from '../validators/User.login';
 
-interface UserServicesParams {
-  Repository: typeof UserRepository;
-}
-
-interface SignupParams extends LoginParams {
-    name: string;
-    role?: string;
-}
-
-export default class UserServices implements UserServicesParams {
-  Repository: typeof UserRepository;
-
-  constructor(Repository = UserRepository) {
-    this.Repository = Repository;
+export default class User extends Services {
+  constructor(entityClass = UserEntity) {
+    super(entityClass);
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
-    this.updateOne = this.updateOne.bind(this);
-    this.deleteOne = this.deleteOne.bind(this);
     this.listAll = this.listAll.bind(this);
-    this.getOne = this.getOne.bind(this);
   }
 
-  async signup(arg: SignupParams): Promise<{ message: string, data: UserEntity }> {
-    const input = this.Repository.create(arg);
-    const newUser = await this.Repository.save(input);
+  async signup(arg: UserEntity): Promise<{ message: string, data: UserEntity }> {
+    const input = this.dataSrc.manager.create(this.entityClass, arg);
+    const newUser = await this.dataSrc.manager.save(input);
     delete newUser.password;
     return { message: 'New user successfully signed up', data: newUser };
   }
 
   async login({ email, password }: LoginParams): Promise<{ message: string, data: UserEntity }> {
-    await this.Repository.validateLogin({ email, password });
-    const userExists = await this.Repository.findOneOrFail({
+    const userParams = new LoginValidator();
+    userParams.email = email;
+    userParams.password = password;
+    await userParams.validate({ validationError: { target: false }, forbidUnknownValues: true });
+    const repo = this.dataSrc.getRepository(UserEntity);
+    const userExists = await repo.findOneOrFail({
       where: { email },
       select: {
         id: true,
@@ -51,28 +43,11 @@ export default class UserServices implements UserServicesParams {
   }
 
   async auth(id: string): Promise<UserEntity> {
-    await this.Repository.validateUserId(id);
-    return this.Repository.findOneByOrFail({ id });
+    return this.fetchOne({ where: { id } }, true);
   }
 
-  async listAll(): Promise<{ message: string, data: UserEntity[] }> {
-    const data = await this.Repository.find();
+  async listAll(): Promise<{ message: string, data: Array<unknown> }> {
+    const data = await this.dataSrc.manager.find(this.entityClass);
     return { message: 'Users successfully retrieved', data };
-  }
-
-  async getOne(user: UserEntity): Promise<{ message: string, data: UserEntity }> {
-    return { message: 'User successfully retrieved', data: user };
-  }
-
-  async updateOne(arg: object, user: UserEntity): Promise<{ message: string, data: UserEntity }> {
-    this.Repository.merge(user, arg);
-    const updatedUser = await this.Repository.save(user);
-    delete updatedUser.password;
-    return { message: 'User successfully updated', data: updatedUser };
-  }
-
-  async deleteOne(user: UserEntity): Promise<{ message: string }> {
-    await this.Repository.remove(user);
-    return { message: 'User successfully deleted' };
   }
 }

@@ -50,13 +50,12 @@ const handleEntityNotFoundErr = (
 ): void => {
   if (err instanceof EntityNotFoundError) {
     res.status(404);
-    const errMsg:string = err.message.replace(/\s+/gi, ' ');
     next({
       isClient: errorMarkers.isClient,
       response: {
         status: errorMarkers.status,
-        message: errMsg.replace(/[^\w\s]/gi, '').trim(),
-        data: { type: 'EntityNotFoundError', timestamp: errorMarkers.timestamp },
+        message: 'Resource not found',
+        data: { type: 'EntityNotFoundError', msg: err.message, timestamp: errorMarkers.timestamp },
       },
     });
   } else next(err);

@@ -4,7 +4,7 @@ import {
 } from 'typeorm';
 import { validateOrReject } from 'class-validator';
 
-export default class AppEntity {
+export default class MainEntity {
     @PrimaryGeneratedColumn('uuid')
       id!: string;
 

@@ -10,7 +10,7 @@ const testAssessmentArg: any = {};
 const testAssessmentForDeletion: any = {};
 
 export default class AssessmentSeeder implements Seeder {
-  public async run(dataSource: DataSource): Promise<any> {
+  public async run(dataSource: DataSource): Promise<void> {
     const userRepository = dataSource.getRepository(UserEntity);
     const testUser = userRepository.create({
       name: 'test-username-assessment',

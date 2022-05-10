@@ -5,13 +5,14 @@ import {
 import { IsEmail, IsIn, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import AppEntity from './App';
+import MainEntity from './Main';
 import AssessmentEntity from './Assessment';
+import SubmissionEntity from './Submissions';
 import bcrypt from '../utils/bcrypt';
 import AppError from '../errors';
 
 @Entity()
-export default class UserEntity extends AppEntity {
+export default class UserEntity extends MainEntity {
    @Column({ unique: true, type: 'text' })
     @IsEmail()
      email!: string;
@@ -31,6 +32,10 @@ export default class UserEntity extends AppEntity {
     @Type(() => AssessmentEntity)
     @OneToMany(() => AssessmentEntity, (assessment) => assessment.mentor, { nullable: true, onDelete: 'CASCADE' })
       assessments?: AssessmentEntity[];
+
+    @Type(() => SubmissionEntity)
+    @OneToMany(() => SubmissionEntity, (submission) => submission.owner, { onDelete: 'CASCADE', nullable: true })
+      submissions?: SubmissionEntity[];
 
     @BeforeInsert()
     @BeforeUpdate()

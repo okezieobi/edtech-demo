@@ -4,11 +4,11 @@ import {
 import { } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import AppEntity from './App';
+import MainEntity from './Main';
 import SubmissionEntity from './Submissions';
 
 @Entity()
-export default class GradeEntity extends AppEntity {
+export default class GradeEntity extends MainEntity {
     @Column({ type: 'text' })
       mark!: string;
 

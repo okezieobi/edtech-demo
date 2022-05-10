@@ -6,12 +6,13 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import AppEntity from './App';
+import MainEntity from './Main';
 import AssessmentEntity from './Assessment';
 import GradeEntity from './Grade';
+import UserEntity from './User';
 
 @Entity()
-export default class SubmissionEntity extends AppEntity {
+export default class SubmissionEntity extends MainEntity {
     @IsArray()
     @ArrayMaxSize(6)
     @ArrayMinSize(1)
@@ -26,6 +27,10 @@ export default class SubmissionEntity extends AppEntity {
     @Type(() => AssessmentEntity)
     @ManyToOne(() => AssessmentEntity, (assessment) => assessment.submissions)
       assessment!: AssessmentEntity;
+
+    @Type(() => UserEntity)
+    @ManyToOne(() => UserEntity, (owner) => owner.submissions)
+      owner!: UserEntity;
 
     @Type(() => GradeEntity)
     @OneToOne(() => GradeEntity, (grade) => grade.submission, { nullable: true })

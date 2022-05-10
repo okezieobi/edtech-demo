@@ -1,37 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
 
-import Controller, { ControllerParam } from '.';
+import Controller from '.';
 import UserServices from '../services/User';
 import JWT from '../utils/Jwt';
 
-interface UserControllerParams extends ControllerParam {
-  Jwt: typeof JWT;
-  Service: typeof UserServices;
-}
-
-export default class UserController extends Controller implements UserControllerParams {
+export default class User extends Controller {
   Jwt: typeof JWT;
 
-  Service: typeof UserServices;
+  UserServices: typeof UserServices;
 
-  constructor(Service = UserServices, Jwt = JWT, key = 'user') {
-    super(key);
-    this.Service = Service;
+  constructor(Services = UserServices, Jwt = JWT) {
+    super(Services);
+    this.UserServices = Services;
     this.Jwt = Jwt;
     this.setJWT = this.setJWT.bind(this);
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
     this.verifyOne = this.verifyOne.bind(this);
-    this.getOne = this.getOne.bind(this);
-    this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.listAll = this.listAll.bind(this);
   }
 
   setJWT(req: Request, res: Response, next: NextFunction) {
     const { generate } = new this.Jwt();
-    generate(res.locals[this.key].data.id).then((token) => {
+    generate(res.locals[this.constructor.name].data.id).then((token) => {
       res.locals.user.data.token = token;
       next();
     }).catch(next);
@@ -55,7 +48,7 @@ export default class UserController extends Controller implements UserController
       email, name, password, role,
     },
   }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { signup } = new this.Service();
+    const { signup } = new this.UserServices();
     return this.handleService({
       method: signup,
       res,
@@ -68,7 +61,7 @@ export default class UserController extends Controller implements UserController
   }
 
   async login({ body }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { login } = new this.Service();
+    const { login } = new this.UserServices();
     return this.handleService({
       method: login, res, next, arg: body,
     });
@@ -78,7 +71,7 @@ export default class UserController extends Controller implements UserController
     const { verify } = new this.Jwt();
     verify(`${token}`)
       .then(async ({ id }: any) => {
-        const { auth } = new this.Service();
+        const { auth } = new this.UserServices();
         res.locals.authorized = await auth(id).catch(next);
         next();
       })
@@ -86,7 +79,7 @@ export default class UserController extends Controller implements UserController
   }
 
   async listAll(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { listAll } = new this.Service();
+    const { listAll } = new this.UserServices();
     return this.handleService({
       method: listAll,
       res,
@@ -96,51 +89,12 @@ export default class UserController extends Controller implements UserController
   }
 
   async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { auth } = new this.Service();
+    const { auth } = new this.UserServices();
     return this.handleService({
       method: auth,
       res,
       next,
       arg: id,
-    });
-  }
-
-  async getOne(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { getOne } = new this.Service();
-    return this.handleService({
-      method: getOne,
-      res,
-      next,
-      arg: res.locals[this.key],
-    });
-  }
-
-  async updateOne(
-    {
-      body: {
-        email, name, password, role,
-      },
-    }: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    const { updateOne } = new this.Service();
-    res.locals.user = await updateOne(
-      {
-        email, name, password, role,
-      },
-      res.locals[this.key],
-    ).catch(next);
-    next();
-  }
-
-  async deleteOne(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { deleteOne } = new this.Service();
-    return this.handleService({
-      method: deleteOne,
-      res,
-      next,
-      arg: res.locals[this.key],
     });
   }
 }

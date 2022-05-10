@@ -2,11 +2,7 @@ import { IsUUID } from 'class-validator';
 
 import Validator from '.';
 
-interface IdParam {
-    id: string;
-}
-
-export default class IdValidator extends Validator implements IdParam {
+export default class IdValidator extends Validator {
     @IsUUID()
       id!: string;
 }
