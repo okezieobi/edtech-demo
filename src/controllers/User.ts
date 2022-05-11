@@ -30,19 +30,6 @@ export default class User extends Controller {
     }).catch(next);
   }
 
-  static isAdmin(req: Request, res: Response, next: NextFunction) {
-    if (res.locals.authorized.role === 'admin') next();
-    else {
-      next({ message: 'User role must be admin', type: 'Forbidden', data: { timestamp: new Date() } });
-    }
-  }
-
-  static isRestricted(req: Request, res: Response, next: NextFunction) {
-    if (res.locals.authorized.role === 'student') {
-      next({ message: 'User role must be admin or a mentor', type: 'Forbidden', data: { timestamp: new Date() } });
-    } else next();
-  }
-
   async signup({
     body: {
       email, name, password, role,

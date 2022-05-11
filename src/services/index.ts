@@ -5,7 +5,7 @@ import IdValidator from '../validators/Id';
 interface FindParams {
     relation: string;
     select: Array<string>,
-    filter?: string;
+    where: Array<any>,
     entity: string;
 }
 
@@ -53,13 +53,10 @@ export default class Services {
     const data = await this.dataSrc.manager.createQueryBuilder(this.entityClass, arg.entity)
       .leftJoinAndSelect(`${arg.entity}.${arg.relation}`, arg.relation)
       .select(arg.select)
+      .where(arg.where[0] ?? '', arg.where[1] ?? {})
       .orderBy(`${arg.entity}.createdAt`, 'DESC')
       .getMany();
-    let filtered: any;
-    if (arg.filter != null) {
-      filtered = data.map((e: any) => e[arg.filter!].id === arg.filter);
-    }
-    return { message: `${this.constructor.name}s successfully retrieved`, data: filtered ?? data };
+    return { message: `${this.constructor.name}s successfully retrieved`, data };
   }
 
   async updateOne(arg: object, entity: any): Promise<{ message: string, data: any }> {

@@ -19,29 +19,32 @@ export default class Assessment extends Controller {
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.useMentor = this.useMentor.bind(this);
-    this.isOwnerMentor = this.isOwnerMentor.bind(this);
   }
 
-  async useMentor({ body: { mentorId } }: Request, res: Response, next: NextFunction) {
-    if (mentorId != null) {
+  async useMentor({ body }: Request, res: Response, next: NextFunction) {
+    if (body.mentorId != null) {
       const { auth } = new this.UserService();
-      res.locals.mentor = await auth(mentorId).catch(next);
+      res.locals.mentor = await auth(body.mentorId).catch(next);
       next();
     } else next();
   }
 
   async createOne(
-    { body: { title, description, deadline } }: Request,
+    {
+      body: {
+        title, description, deadline, mentor,
+      },
+    }: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { createOne } = new this.Services();
+    const { createOne } = new this.AssessmentServices();
     return this.handleService({
       method: createOne,
       res,
       next,
       arg: {
-        title, description, deadline, mentor: res.locals.mentor ?? res.locals.authorized,
+        title, description, deadline, mentor: res.locals.authorized,
       },
       status: 201,
     });
@@ -63,17 +66,10 @@ export default class Assessment extends Controller {
     next();
   }
 
-  isOwnerMentor(req: Request, res: Response, next: NextFunction): void {
-    if (res.locals.authorized.id !== res.locals[this.constructor.name].mentor.id) {
-      res.status(403);
-      next({ isClient: true, response: { status: 'error', message: 'Users with role as mentor can only edit or delete they own', data: { timestamp: new Date() } } });
-    } else next();
-  }
-
   async updateOne(
     {
       body: {
-        title, description, deadline,
+        title, description, deadline, mentor,
       },
     }: Request,
     res: Response,
@@ -82,7 +78,7 @@ export default class Assessment extends Controller {
     const { updateOne } = new this.Services();
     res.locals[this.constructor.name] = await updateOne(
       {
-        title, description, deadline, mentor: res.locals.mentor ?? res.locals.authorized,
+        title, description, deadline, mentor: res.locals.authorized,
       },
       res.locals[this.constructor.name],
     ).catch(next);

@@ -29,8 +29,8 @@ export default class SubmissionEntity extends MainEntity {
       assessment!: AssessmentEntity;
 
     @Type(() => UserEntity)
-    @ManyToOne(() => UserEntity, (owner) => owner.submissions)
-      owner!: UserEntity;
+    @ManyToOne(() => UserEntity, (student) => student.submissions)
+      student!: UserEntity;
 
     @Type(() => GradeEntity)
     @OneToOne(() => GradeEntity, (grade) => grade.submission, { nullable: true })

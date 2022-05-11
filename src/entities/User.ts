@@ -34,7 +34,7 @@ export default class UserEntity extends MainEntity {
       assessments?: AssessmentEntity[];
 
     @Type(() => SubmissionEntity)
-    @OneToMany(() => SubmissionEntity, (submission) => submission.owner, { onDelete: 'CASCADE', nullable: true })
+    @OneToMany(() => SubmissionEntity, (submission) => submission.student, { onDelete: 'CASCADE', nullable: true })
       submissions?: SubmissionEntity[];
 
     @BeforeInsert()

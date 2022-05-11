@@ -34,6 +34,8 @@ components:        # Schema definition for request body
       deadline:
         type: string
         example: 2022-06-04
+      mentor:
+        type: string
     required:
      - title
      - description

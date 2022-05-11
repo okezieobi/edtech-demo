@@ -8,12 +8,12 @@ export default class Assessment extends Services {
     this.verifyOne = this.verifyOne.bind(this);
   }
 
-  async listAll(mentor?: string): Promise<{ message: string, data: Array<unknown> }> {
+  async listAll(mentor: any): Promise<{ message: string, data: Array<unknown> }> {
     const arg = {
       relation: 'mentor',
       select: ['assessmentEntity.id', 'mentor.id', 'mentor.name', 'mentor.role',
         'assessmentEntity.title', 'assessmentEntity.deadline', 'assessmentEntity.createdAt'],
-      filter: mentor,
+      where: mentor != null ? ['assessment.mentor = :mentor', { mentor }] : [],
       entity: 'assessmentEntity',
     };
     return this.fetchAll(arg);

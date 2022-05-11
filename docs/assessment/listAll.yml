@@ -6,6 +6,12 @@ paths:
       summary: gets all assessments as an authorized user.
       security:
        - headerAuth: []
+      parameters:
+        - name: mentor
+          in: query
+          description: Mentor id to filter response.
+          schema:
+            type: string
       responses:          # server responses
         200:
           description: An object containing an array of assessments

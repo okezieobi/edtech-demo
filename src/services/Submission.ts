@@ -8,12 +8,12 @@ export default class Submission extends Services {
     this.verifyOne = this.verifyOne.bind(this);
   }
 
-  async listAll(owner: string): Promise<{ message: string, data: Array<unknown> }> {
+  async listAll(student: string): Promise<{ message: string, data: Array<unknown> }> {
     const arg = {
       relation: 'assessment',
-      select: ['submissionEntity.id', 'submissionEntity.links', 'submissionEntity.submittedAt',
+      select: ['submissionEntity.id', 'submissionEntity.student.name', 'submissionEntity.student.id', 'submissionEntity.submittedAt',
         'submissionEntity.assessment.id', 'submissionEntity.assessment.title'],
-      filter: owner,
+      where: ['submissionEntity.student.id = :student', { student }],
       entity: 'submissionEntity',
     };
     return this.fetchAll(arg);
