@@ -12,29 +12,14 @@ interface handleServiceParams {
 }
 
 export default abstract class Controller {
-  Services: typeof MainServices;
+  MainServices: typeof MainServices;
 
-  constructor(Services: typeof MainServices) {
-    this.Services = Services;
-    this.getOne = this.getOne.bind(this);
-    this.deleteOne = this.deleteOne.bind(this);
-    this.updateOne = this.updateOne.bind(this);
+  constructor(Services: any) {
+    this.MainServices = Services;
     this.isOwner = this.isOwner.bind(this);
     this.dispatchResponse = this.dispatchResponse.bind(this);
     this.handleService = this.handleService.bind(this);
-  }
-
-  async getOne(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { getOne } = new this.Services();
-    res.locals[this.constructor.name] = await getOne(res.locals[this.constructor.name]);
-    next();
-  }
-
-  async deleteOne(req: Request, res: Response, next: NextFunction) {
-    const { deleteOne } = new this.Services();
-    res.locals[this.constructor.name] = await deleteOne(res.locals[this.constructor.name])
-      .catch(next);
-    next();
+    this.useOwner = this.useOwner.bind(this);
   }
 
   async handleService({
@@ -42,17 +27,6 @@ export default abstract class Controller {
   }: handleServiceParams): Promise<void> {
     res.locals[this.constructor.name] = await method(arg).catch(next);
     res.status(status);
-    next();
-  }
-
-  async updateOne(
-    { body }: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    const { updateOne } = new this.Services();
-    res.locals[this.constructor.name] = await updateOne(body, res.locals[this.constructor.name])
-      .catch(next);
     next();
   }
 
@@ -78,6 +52,17 @@ export default abstract class Controller {
       if (res.locals.authorized.id !== res.locals[this.constructor.name][role].id) {
         res.status(403);
         next({ message: `Only Users with role as ${role} can read or write to ${res.locals[this.constructor.name]} they own`, type: 'Forbidden', data: { timestamp: new Date() } });
+      } else next();
+    };
+  }
+
+  useOwner(relation: string) {
+    return async ({ body, query }: Request, res: Response, next: NextFunction) => {
+      if (body[relation] != null || query[relation] != null) {
+        const { fetchOne, validateId } = new this.MainServices();
+        await validateId(body[relation] ?? query[relation]);
+        res.locals[relation] = await fetchOne(body[relation] ?? query[relation]).catch(next);
+        next();
       } else next();
     };
   }

@@ -13,7 +13,7 @@ export default class Submission extends Services {
       relation: 'assessment',
       select: ['submissionEntity.id', 'submissionEntity.student.name', 'submissionEntity.student.id', 'submissionEntity.submittedAt',
         'submissionEntity.assessment.id', 'submissionEntity.assessment.title'],
-      where: ['submissionEntity.student.id = :student', { student }],
+      where: student != null ? ['submissionEntity.student = :student', { student }] : [],
       entity: 'submissionEntity',
     };
     return this.fetchAll(arg);

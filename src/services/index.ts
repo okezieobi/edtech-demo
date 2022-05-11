@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import AppDataSrc from '../db';
 import AppError from '../errors';
 import IdValidator from '../validators/Id';
@@ -23,6 +24,7 @@ export default class Services {
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.getOne = this.getOne.bind(this);
+    this.validateId = this.validateId.bind(this);
   }
 
   async createOne(arg: object): Promise<{ message: string, data: unknown}> {
@@ -31,17 +33,21 @@ export default class Services {
     return { message: `${this.constructor.name} successfully created`, data: entity };
   }
 
-  async fetchOne(query: any, target: boolean = true):
-        Promise<any> {
+  async validateId(id: string, target: boolean = true): Promise<void> {
     const entity = new IdValidator();
-    entity.id = query.where.id;
-    await entity.validate({ validationError: { target }, forbidUnknownValues: true });
+    entity.id = id;
+    return entity.validate({ validationError: { target }, forbidUnknownValues: true });
+  }
+
+  async fetchOne(query: any):
+        Promise<any> {
     const data = await this.dataSrc.manager.findOne(this.entityClass, query);
-    if (data == null) throw new AppError(`${this.constructor.name} not found`, 'NotFound', { param: 'id', value: query.where.id });
+    if (data == null) throw new AppError(`${this.constructor.name} not found`, 'NotFound', { query });
     return data;
   }
 
-  async getOne(entity: any): Promise<{ message: string, data: unknown }> {
+  async getOne(query: any): Promise<{ message: string, data: unknown }> {
+    const entity = await this.fetchOne(query);
     return {
       message: `${this.constructor.name} successfully retrieved`,
       data: entity,
@@ -59,13 +65,15 @@ export default class Services {
     return { message: `${this.constructor.name}s successfully retrieved`, data };
   }
 
-  async updateOne(arg: object, entity: any): Promise<{ message: string, data: any }> {
+  async updateOne(arg: object, query: any): Promise<{ message: string, data: any }> {
+    const entity = await this.fetchOne(query);
     this.dataSrc.manager.merge(this.entityClass, entity, arg);
     await this.dataSrc.manager.save(entity);
     return { message: `${this.constructor.name} successfully updated`, data: entity };
   }
 
-  async deleteOne(entity: any): Promise<{ message: string}> {
+  async deleteOne(query: any): Promise<{ message: string }> {
+    const entity = await this.fetchOne(query);
     await this.dataSrc.manager.remove(entity);
     return { message: `${this.constructor.name} successfully deleted` };
   }

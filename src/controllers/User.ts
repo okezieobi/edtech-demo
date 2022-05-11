@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 
 import Controller from '.';
-import UserServices from '../services/User';
 import JWT from '../utils/Jwt';
+import UserServices from '../services/User';
 
 export default class User extends Controller {
-  Jwt: typeof JWT;
-
   UserServices: typeof UserServices;
+
+  Jwt: typeof JWT;
 
   constructor(Services = UserServices, Jwt = JWT) {
     super(Services);
@@ -17,9 +17,9 @@ export default class User extends Controller {
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
-    this.verifyOne = this.verifyOne.bind(this);
     this.listAll = this.listAll.bind(this);
     this.updateOne = this.updateOne.bind(this);
+    this.createOne = this.createOne.bind(this);
   }
 
   setJWT(req: Request, res: Response, next: NextFunction) {
@@ -30,21 +30,21 @@ export default class User extends Controller {
     }).catch(next);
   }
 
-  async signup({
-    body: {
-      email, name, password, role,
-    },
-  }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { signup } = new this.UserServices();
-    return this.handleService({
-      method: signup,
-      res,
-      next,
-      arg: {
-        email, name, password, role,
-      },
-      status: 201,
-    });
+  async signup({ body }: Request, res: Response, next: NextFunction): Promise<void> {
+    const { createOne } = new this.UserServices();
+    res.locals[this.constructor.name] = await createOne(body).catch(next);
+    delete res.locals[this.constructor.name].data.password;
+    res.locals[this.constructor.name].message = `${this.constructor.name} successfully signed up`;
+    res.status(201);
+    next();
+  }
+
+  async createOne({ body }: Request, res: Response, next: NextFunction): Promise<void> {
+    const { createOne } = new this.UserServices();
+    res.locals[this.constructor.name] = await createOne(body).catch(next);
+    delete res.locals[this.constructor.name].data.password;
+    res.status(201);
+    next();
   }
 
   async login({ body }: Request, res: Response, next: NextFunction): Promise<void> {
@@ -75,24 +75,15 @@ export default class User extends Controller {
     });
   }
 
-  async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { auth } = new this.UserServices();
-    return this.handleService({
-      method: auth,
-      res,
-      next,
-      arg: id,
-    });
-  }
-
   async updateOne(
     { body }: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { updateUser } = new this.UserServices();
-    res.locals[this.constructor.name] = await updateUser(body, res.locals[this.constructor.name])
+    const { updateOne } = new this.UserServices();
+    res.locals[this.constructor.name] = await updateOne(body, res.locals[this.constructor.name])
       .catch(next);
+    delete res.locals[this.constructor.name].data.password;
     next();
   }
 }

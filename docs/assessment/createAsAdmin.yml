@@ -1,16 +1,16 @@
 paths:
-  /assessments:                # path of the user from your endpoint
+  /assessments/admin:                # path of the user from your endpoint
     post:                 # endpoint request type (post request)
       tags:               # Tag property
         - Assessment            # Value of the tag
-      summary: creates a new assessment as an authorized mentor
+      summary: creates a new assessment as an authorized admin
       security:
        - headerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/create_assessment'
+              $ref: '#/components/schemas/create_assessment_admin'
       responses:          # server responses
         201:
           description: An object containing a newly created assessment details
@@ -22,7 +22,7 @@ paths:
           description: Error message object in error property of response body
 components:        # Schema definition for request body
  schemas:
-  create_assessment:
+  create_assessment_admin:
     type: object
     properties:
       title:
@@ -34,6 +34,8 @@ components:        # Schema definition for request body
       deadline:
         type: string
         example: 2022-06-04
+      mentor:
+        type: string
     required:
      - title
      - description
