@@ -17,11 +17,7 @@ export default class Assessment extends Controller {
   }
 
   async createOne(
-    {
-      body: {
-        title, description, deadline,
-      },
-    }: Request,
+    { body }: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
@@ -30,9 +26,7 @@ export default class Assessment extends Controller {
       method: createOne,
       res,
       next,
-      arg: {
-        title, description, deadline, mentor: res.locals.mentor ?? res.locals.authorized,
-      },
+      arg: { ...body, mentor: res.locals.mentor ?? res.locals.authorized },
       status: 201,
     });
   }

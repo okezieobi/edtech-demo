@@ -1,8 +1,8 @@
 import { IsUUID } from 'class-validator';
 
-import Validator from '.';
+import Fields from '.';
 
-export default class IdValidator extends Validator {
+export default class Id extends Fields {
     @IsUUID()
       id!: string;
 }

@@ -13,11 +13,8 @@ interface FindParams {
 export default class Services {
   dataSrc: typeof AppDataSrc;
 
-  entityClass: any;
-
-  constructor(entityClass: any = undefined, dataSrc = AppDataSrc) {
+  constructor(dataSrc = AppDataSrc) {
     this.dataSrc = dataSrc;
-    this.entityClass = entityClass;
     this.createOne = this.createOne.bind(this);
     this.fetchAll = this.fetchAll.bind(this);
     this.fetchOne = this.fetchOne.bind(this);
@@ -27,8 +24,8 @@ export default class Services {
     this.validateId = this.validateId.bind(this);
   }
 
-  async createOne(arg: object): Promise<{ message: string, data: unknown}> {
-    const entity = this.dataSrc.manager.create(this.entityClass, arg);
+  async createOne(entityClass: any, arg: object): Promise<{ message: string, data: unknown}> {
+    const entity = this.dataSrc.manager.create(entityClass, arg);
     await this.dataSrc.manager.save(entity);
     return { message: `${this.constructor.name} successfully created`, data: entity };
   }
@@ -39,24 +36,24 @@ export default class Services {
     return entity.validate({ validationError: { target }, forbidUnknownValues: true });
   }
 
-  async fetchOne(query: any):
+  async fetchOne(entityClass: any, query: any):
         Promise<any> {
-    const data = await this.dataSrc.manager.findOne(this.entityClass, query);
+    const data = await this.dataSrc.manager.findOne(entityClass, query);
     if (data == null) throw new AppError(`${this.constructor.name} not found`, 'NotFound', { query });
     return data;
   }
 
-  async getOne(query: any): Promise<{ message: string, data: unknown }> {
-    const entity = await this.fetchOne(query);
+  async getOne(entityClass: any, query: any): Promise<{ message: string, data: unknown }> {
+    const entity = await this.fetchOne(entityClass, query);
     return {
       message: `${this.constructor.name} successfully retrieved`,
       data: entity,
     };
   }
 
-  async fetchAll(arg: FindParams)
+  async fetchAll(entityClass: any, arg: FindParams)
       : Promise<{ message: string, data: Array<unknown> }> {
-    const data = await this.dataSrc.manager.createQueryBuilder(this.entityClass, arg.entity)
+    const data = await this.dataSrc.manager.createQueryBuilder(entityClass, arg.entity)
       .leftJoinAndSelect(`${arg.entity}.${arg.relation}`, arg.relation)
       .select(arg.select)
       .where(arg.where[0] ?? '', arg.where[1] ?? {})
@@ -65,15 +62,16 @@ export default class Services {
     return { message: `${this.constructor.name}s successfully retrieved`, data };
   }
 
-  async updateOne(arg: object, query: any): Promise<{ message: string, data: any }> {
-    const entity = await this.fetchOne(query);
-    this.dataSrc.manager.merge(this.entityClass, entity, arg);
+  async updateOne(entityClass: any, query: any, arg: object):
+    Promise<{ message: string, data: any }> {
+    const entity = await this.fetchOne(entityClass, query);
+    this.dataSrc.manager.merge(entityClass, entity, arg);
     await this.dataSrc.manager.save(entity);
     return { message: `${this.constructor.name} successfully updated`, data: entity };
   }
 
-  async deleteOne(query: any): Promise<{ message: string }> {
-    const entity = await this.fetchOne(query);
+  async deleteOne(entityClass: any, query: any): Promise<{ message: string }> {
+    const entity = await this.fetchOne(entityClass, query);
     await this.dataSrc.manager.remove(entity);
     return { message: `${this.constructor.name} successfully deleted` };
   }

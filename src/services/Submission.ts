@@ -1,25 +1,45 @@
-import Services from '.';
-import SubmissionEntity from '../entities/Submissions';
+import Assessment from './Assessment';
+import SubmissionEntity, { SubmissionFields } from '../entities/Submissions';
+import { UserFields } from '../entities/User';
 
-export default class Submission extends Services {
+export default class Submission extends Assessment {
+  private SubmissionEntity: typeof SubmissionEntity;
+
   constructor(entityClass = SubmissionEntity) {
-    super(entityClass);
-    this.listAll = this.listAll.bind(this);
-    this.verifyOne = this.verifyOne.bind(this);
+    super();
+    this.SubmissionEntity = entityClass;
+    this.listSuBmissions = this.listSuBmissions.bind(this);
+    this.createSubmission = this.createAssessment.bind(this);
+    this.readSubmissionEntity = this.readSubmissionEntity.bind(this);
   }
 
-  async listAll(student: string): Promise<{ message: string, data: Array<unknown> }> {
+  readSubmissionEntity() {
+    return this.SubmissionEntity;
+  }
+
+  async createSubmission(arg: any & SubmissionFields, authorized: any & UserFields) {
+    const assessment = await this.fetchOne(
+      this.readAssessmentEntity(),
+      { where: { id: arg.assessmentId } },
+    );
+    let student: any;
+    if (arg.studentId) {
+      student = await this.fetchOne(this.readUserEntity(), { where: { id: arg.studentId } });
+    }
+    return this.createOne(
+      this.SubmissionEntity,
+      { ...arg, assessment, student: student ?? authorized },
+    );
+  }
+
+  async listSuBmissions(student: string): Promise<{ message: string, data: Array<unknown> }> {
     const arg = {
       relation: 'assessment',
-      select: ['submissionEntity.id', 'submissionEntity.student.name', 'submissionEntity.student.id', 'submissionEntity.submittedAt',
-        'submissionEntity.assessment.id', 'submissionEntity.assessment.title'],
-      where: student != null ? ['submissionEntity.student = :student', { student }] : [],
-      entity: 'submissionEntity',
+      select: ['submission.id', 'submission.student.name', 'submission.student.id', 'submission.submittedAt',
+        'submission.assessment.id', 'submission.assessment.title'],
+      where: student != null ? ['submission.student = :student', { student }] : [],
+      entity: 'submission',
     };
-    return this.fetchAll(arg);
-  }
-
-  async verifyOne(id: string): Promise<SubmissionEntity> {
-    return super.fetchOne({ where: { id }, relations: { assessment: true } });
+    return this.fetchAll(this.SubmissionEntity, arg);
   }
 }

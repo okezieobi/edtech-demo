@@ -4,7 +4,7 @@ import {
 } from 'typeorm';
 import { validateOrReject } from 'class-validator';
 
-export default class MainEntity {
+export default class Main {
     @PrimaryGeneratedColumn('uuid')
       id!: string;
 
@@ -19,7 +19,7 @@ export default class MainEntity {
     async validateFields() {
       return validateOrReject(
         this,
-        { validationError: { target: false }, forbidUnknownValues: true },
+        { whitelist: true, validationError: { target: false }, forbidUnknownValues: true },
       );
     }
 }

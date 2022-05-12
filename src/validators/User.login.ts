@@ -1,13 +1,13 @@
 import { IsEmail, IsString } from 'class-validator';
 
-import Validator from '.';
+import Fields from '.';
 
-interface LoginParams {
+interface LoginFields {
     email: string;
     password: string;
 }
 
-export default class LoginValidator extends Validator implements LoginParams {
+export default class Login extends Fields implements LoginFields {
     @IsEmail()
       email!: string;
 
@@ -15,4 +15,4 @@ export default class LoginValidator extends Validator implements LoginParams {
       password!: string;
 }
 
-export { LoginParams };
+export { LoginFields };

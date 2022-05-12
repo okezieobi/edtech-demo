@@ -5,14 +5,21 @@ import {
 import { IsEmail, IsIn, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import MainEntity from './Main';
+import Main from './Main';
 import AssessmentEntity from './Assessment';
 import SubmissionEntity from './Submissions';
 import bcrypt from '../utils/bcrypt';
 import AppError from '../errors';
 
+interface UserFields {
+  email: string
+  name: string;
+  password?: string;
+  role?: string;
+}
+
 @Entity()
-export default class UserEntity extends MainEntity {
+export default class User extends Main implements UserFields {
    @Column({ unique: true, type: 'text' })
     @IsEmail()
      email!: string;
@@ -50,3 +57,5 @@ export default class UserEntity extends MainEntity {
       }
     }
 }
+
+export { UserFields };

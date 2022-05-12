@@ -4,13 +4,19 @@ import {
 import { IsString, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import MainEntity from './Main';
+import Main from './Main';
 import UserEntity from './User';
 import SubmissionEntity from './Submissions';
 import AppError from '../errors';
 
+interface AssessmentFields {
+  title: string;
+  description: string,
+  deadline: Date,
+}
+
 @Entity()
-export default class AssessmentEntity extends MainEntity {
+export default class Assessment extends Main implements AssessmentFields {
     @Column({ type: 'text' })
     @IsString()
       title!: string;
@@ -40,3 +46,5 @@ export default class AssessmentEntity extends MainEntity {
       }
     }
 }
+
+export { AssessmentFields };

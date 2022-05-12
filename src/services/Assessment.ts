@@ -1,25 +1,42 @@
-import AssessmentEntity from '../entities/Assessment';
-import Services from '.';
+import AssessmentEntity, { AssessmentFields } from '../entities/Assessment';
+import { UserFields } from '../entities/User';
+import User from './User';
 
-export default class Assessment extends Services {
+export default class Assessment extends User {
+  private AssessmentEntity: typeof AssessmentEntity;
+
   constructor(entityClass = AssessmentEntity) {
-    super(entityClass);
-    this.listAll = this.listAll.bind(this);
-    this.verifyOne = this.verifyOne.bind(this);
+    super();
+    this.AssessmentEntity = entityClass;
+    this.listAssessments = this.listAssessments.bind(this);
+    this.createAssessment = this.createAssessment.bind(this);
+    this.readAssessmentEntity = this.readAssessmentEntity.bind(this);
   }
 
-  async listAll(mentor: string): Promise<{ message: string, data: Array<unknown> }> {
+  readAssessmentEntity() {
+    return this.AssessmentEntity;
+  }
+
+  async createAssessment(arg: any & AssessmentFields, mentor: UserFields) {
+    let optMentor: any;
+    if (arg.mentorId != null) {
+      await this.validateId(arg.mentor);
+      optMentor = await this.fetchOne(
+        this.readUserEntity(),
+        { where: { id: arg.mentorId } },
+      );
+    }
+    return super.createOne(this.AssessmentEntity, { ...arg, mentor: optMentor ?? mentor });
+  }
+
+  async listAssessments(mentor: string): Promise<{ message: string, data: Array<unknown> }> {
     const arg = {
       relation: 'mentor',
-      select: ['assessmentEntity.id', 'mentor.id', 'mentor.name', 'mentor.role',
-        'assessmentEntity.title', 'assessmentEntity.deadline', 'assessmentEntity.createdAt'],
-      where: mentor != null ? ['assessmentEntity.mentor = :mentor', { mentor }] : [],
-      entity: 'assessmentEntity',
+      select: ['assessment.id', 'mentor.id', 'mentor.name', 'mentor.role',
+        'assessment.title', 'assessment.deadline', 'assessment.createdAt'],
+      where: mentor != null ? ['assessment.mentor = :mentor', { mentor }] : [],
+      entity: 'assessment',
     };
-    return this.fetchAll(arg);
-  }
-
-  async verifyOne(id: string): Promise<AssessmentEntity> {
-    return this.fetchOne({ where: { id }, relations: { mentor: true } });
+    return super.fetchAll(this.AssessmentEntity, arg);
   }
 }

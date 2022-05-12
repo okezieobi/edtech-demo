@@ -1,24 +1,47 @@
 /* eslint-disable class-methods-use-this */
 import Services from '.';
-import UserEntity from '../entities/User';
-import LoginValidator, { LoginParams } from '../validators/User.login';
+import UserEntity, { UserFields } from '../entities/User';
+import LoginValidator, { LoginFields } from '../validators/User.login';
 import AppError from '../errors';
 
 export default class User extends Services {
+  private UserEntity: typeof UserEntity;
+
   constructor(entityClass = UserEntity) {
-    super(entityClass);
+    super();
+    this.UserEntity = entityClass;
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
-    this.listAll = this.listAll.bind(this);
+    this.listUsers = this.listUsers.bind(this);
+    this.readUserEntity = this.readUserEntity.bind(this);
+    this.isAdmin = this.isAdmin.bind(this);
+    this.isRestricted = this.isRestricted.bind(this);
+    this.isOwner = this.isOwner.bind(this);
   }
 
-  async login({ email, password }: LoginParams): Promise<{ message: string, data: UserEntity }> {
+  readUserEntity() {
+    return this.UserEntity;
+  }
+
+  async isAdmin(authorized: UserFields) {
+    if (authorized.role !== 'admin') throw new AppError('Only admins can read or write this data', 'forbidden');
+  }
+
+  async isRestricted(authorized: UserFields) {
+    if (authorized.role === 'student') throw new AppError('Only mentors or admins can read or write this data', 'forbidden');
+  }
+
+  async isOwner(relation: any, authorized: any & UserFields) {
+    if (authorized.id !== relation.id && authorized.role !== 'admin') throw new AppError('Users can read or write data that they are associated with', 'forbidden');
+  }
+
+  async login({ email, password }: LoginFields): Promise<{ message: string, data: UserEntity }> {
     const userParams = new LoginValidator();
     userParams.email = email;
     userParams.password = password;
     await userParams.validate({ validationError: { target: false }, forbidUnknownValues: true });
-    const repo = this.dataSrc.getRepository(this.entityClass);
-    const userExists: any = await repo.findOne({
+    const repo = this.dataSrc.getRepository(this.UserEntity);
+    const userExists = await repo.findOne({
       where: { email },
       select: {
         id: true,
@@ -38,14 +61,14 @@ export default class User extends Services {
 
   async auth(id: string): Promise<UserEntity> {
     await this.validateId(id, false);
-    const user = await this.dataSrc.manager.findOneBy(UserEntity, { id });
+    const user = await this.dataSrc.manager.findOneBy(this.UserEntity, { id });
     if (user == null) throw new AppError('User not found', 'NotFound');
     return user;
   }
 
-  async listAll(): Promise<{ message: string, data: Array<unknown> }> {
+  async listUsers(): Promise<{ message: string, data: Array<unknown> }> {
     const data = await this.dataSrc.manager.find(
-      this.entityClass,
+      this.UserEntity,
       { select: { id: true, name: true, email: true } },
     );
     return { message: 'Users successfully retrieved', data };

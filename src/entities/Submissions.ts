@@ -6,13 +6,17 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import MainEntity from './Main';
+import Main from './Main';
 import AssessmentEntity from './Assessment';
 import GradeEntity from './Grade';
 import UserEntity from './User';
 
+interface SubmissionFields {
+  links: Array<string>
+  submittedAt: Date;
+}
 @Entity()
-export default class SubmissionEntity extends MainEntity {
+export default class SubmissionEntity extends Main {
     @IsArray()
     @ArrayMaxSize(6)
     @ArrayMinSize(1)
@@ -36,3 +40,5 @@ export default class SubmissionEntity extends MainEntity {
     @OneToOne(() => GradeEntity, (grade) => grade.submission, { nullable: true })
       grade?: GradeEntity;
 }
+
+export { SubmissionFields };

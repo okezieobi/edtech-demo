@@ -20,6 +20,8 @@ export default class User extends Controller {
     this.listAll = this.listAll.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.createOne = this.createOne.bind(this);
+    this.getOne = this.getOne.bind(this);
+    this.deleteOne = this.deleteOne.bind(this);
   }
 
   setJWT(req: Request, res: Response, next: NextFunction) {
@@ -65,6 +67,13 @@ export default class User extends Controller {
       .catch(next);
   }
 
+  async getOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
+    const { validateId, getOne } = new this.UserServices();
+    await validateId(id).catch(next);
+    res.locals[this.constructor.name] = await getOne({ where: { id } }).catch(next);
+    next();
+  }
+
   async listAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { listAll } = new this.UserServices();
     return this.handleService({
@@ -76,14 +85,22 @@ export default class User extends Controller {
   }
 
   async updateOne(
-    { body }: Request,
+    { params: { id }, body }: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { updateOne } = new this.UserServices();
-    res.locals[this.constructor.name] = await updateOne(body, res.locals[this.constructor.name])
+    const { updateOne, validateId } = new this.UserServices();
+    await validateId(id).catch(next);
+    res.locals[this.constructor.name] = await updateOne(body, { where: { id } })
       .catch(next);
     delete res.locals[this.constructor.name].data.password;
+    next();
+  }
+
+  async deleteOne({ params: { id } }: Request, res: Response, next: NextFunction) {
+    const { deleteOne, validateId } = new this.UserServices();
+    await validateId(id).catch(next);
+    res.locals[this.constructor.name] = await deleteOne({ where: { id } });
     next();
   }
 }
