@@ -7,11 +7,10 @@ export default class Assessment extends Controller {
   AssessmentServices: typeof AssessmentServices;
 
   constructor(Services = AssessmentServices) {
-    super(Services);
+    super();
     this.AssessmentServices = Services;
     this.createOne = this.createOne.bind(this);
     this.listAll = this.listAll.bind(this);
-    this.verifyOne = this.verifyOne.bind(this);
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
   }
@@ -21,47 +20,46 @@ export default class Assessment extends Controller {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { createOne } = new this.AssessmentServices();
+    const { createAssessment } = new this.AssessmentServices();
     return this.handleService({
-      method: createOne,
+      method: createAssessment,
       res,
       next,
-      arg: { ...body, mentor: res.locals.mentor ?? res.locals.authorized },
+      arg: { ...body, mentor: res.locals.authorized },
       status: 201,
     });
   }
 
   async listAll({ query }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { listAll } = new this.AssessmentServices();
+    const { listAssessments } = new this.AssessmentServices();
     return this.handleService({
-      method: listAll,
+      method: listAssessments,
       res,
       next,
       arg: query.mentor,
     });
   }
 
-  async verifyOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { verifyOne } = new this.AssessmentServices();
-    res.locals[this.constructor.name] = await verifyOne(id).catch(next);
+  async getOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
+    const { getOne, validateId, readAssessmentEntity } = new this.AssessmentServices();
+    await validateId(id).catch(next);
+    res.locals[this.constructor.name] = await getOne(
+      readAssessmentEntity,
+      { where: { id } },
+    ).catch(next);
     next();
   }
 
   async updateOne(
-    {
-      body: {
-        title, description, deadline,
-      },
-    }: Request,
+    { body, params }: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { updateOne } = new this.AssessmentServices();
+    const { updateOne, readAssessmentEntity } = new this.AssessmentServices();
     res.locals[this.constructor.name] = await updateOne(
-      {
-        title, description, deadline, mentor: res.locals.mentor ?? res.locals.authorized,
-      },
-      res.locals[this.constructor.name],
+      readAssessmentEntity(),
+      { where: { id: params.id, mentor: body.mentor ?? res.locals.authorized } },
+      body,
     ).catch(next);
     next();
   }

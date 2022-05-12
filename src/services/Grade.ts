@@ -8,7 +8,8 @@ export default class Grade extends Submission {
   constructor(entityClass = GradeEntity) {
     super();
     this.GradeEntity = entityClass;
-    this.listGrades = this.listGrades.bind(this);
+    this.listGradesForMentor = this.listGradesForMentor.bind(this);
+    this.listGradesForStudent = this.listGradesForStudent.bind(this);
     this.createGrade = this.createGrade.bind(this);
     this.readGradeEntity = this.readGradeEntity.bind(this);
   }
@@ -34,25 +35,24 @@ export default class Grade extends Submission {
     return this.createOne(this.GradeEntity, { ...arg, submission });
   }
 
-  async listGrades(authorized: UserFields): Promise<{ message: string, data: Array<any> }> {
-    let where: Array<any>;
-    switch (authorized.role) {
-      case 'student':
-        where = ['grade'];
-        break;
-      default:
-        where = [];
-    }
-    const arg = {
-      relation: 'submission',
-      select: ['grade.id', 'grade.mark', 'grade.submission.id', 'grade.createdAt'],
-      entity: 'grade',
-      where,
-    };
+  async listGradesForStudent(student: UserFields) {
     const grades = this.dataSrc.manager.createQueryBuilder(this.GradeEntity, 'grade')
       .leftJoinAndSelect('grade.submission', 'submission')
       .leftJoinAndSelect('submission.student', 'student')
+      .where('grade.submission.student = : student', { student })
+      .select(['grade.id', 'grade.mark', 'grade.submission.id', 'grade.createdAt'])
       .getMany();
-    return { message: 'stuff', data: grades };
+    return { message: 'Student grades successfully retrieved', data: grades };
+  }
+
+  async listGradesForMentor(mentor: UserFields) {
+    const grades = await this.dataSrc.manager.createQueryBuilder(this.GradeEntity, 'grade')
+      .leftJoinAndSelect('grade.submission', 'submission')
+      .leftJoinAndSelect('submission.assessment', 'assessment')
+      .leftJoinAndSelect('assessment.mentor', 'mentor')
+      .where('submission.assessment.mentor = :mentor', { mentor })
+      .select(['grade.id', 'grade.mark', 'grade.submission.id', 'grade.createdAt'])
+      .getMany();
+    return { message: 'Grades for mentor assessments successfully retrieved', data: grades };
   }
 }

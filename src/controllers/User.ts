@@ -10,7 +10,7 @@ export default class User extends Controller {
   Jwt: typeof JWT;
 
   constructor(Services = UserServices, Jwt = JWT) {
-    super(Services);
+    super();
     this.UserServices = Services;
     this.Jwt = Jwt;
     this.setJWT = this.setJWT.bind(this);
@@ -33,8 +33,8 @@ export default class User extends Controller {
   }
 
   async signup({ body }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { createOne } = new this.UserServices();
-    res.locals[this.constructor.name] = await createOne(body).catch(next);
+    const { createOne, readUserEntity } = new this.UserServices();
+    res.locals[this.constructor.name] = await createOne(readUserEntity(), body).catch(next);
     delete res.locals[this.constructor.name].data.password;
     res.locals[this.constructor.name].message = `${this.constructor.name} successfully signed up`;
     res.status(201);
@@ -42,8 +42,8 @@ export default class User extends Controller {
   }
 
   async createOne({ body }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { createOne } = new this.UserServices();
-    res.locals[this.constructor.name] = await createOne(body).catch(next);
+    const { createOne, readUserEntity } = new this.UserServices();
+    res.locals[this.constructor.name] = await createOne(readUserEntity(), body).catch(next);
     delete res.locals[this.constructor.name].data.password;
     res.status(201);
     next();
@@ -68,16 +68,19 @@ export default class User extends Controller {
   }
 
   async getOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { validateId, getOne } = new this.UserServices();
+    const { validateId, readUserEntity, getOne } = new this.UserServices();
     await validateId(id).catch(next);
-    res.locals[this.constructor.name] = await getOne({ where: { id } }).catch(next);
+    res.locals[this.constructor.name] = await getOne(
+      readUserEntity(),
+      { where: { id } },
+    ).catch(next);
     next();
   }
 
   async listAll(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { listAll } = new this.UserServices();
+    const { listUsers } = new this.UserServices();
     return this.handleService({
-      method: listAll,
+      method: listUsers,
       res,
       next,
       arg: undefined,
@@ -89,18 +92,18 @@ export default class User extends Controller {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { updateOne, validateId } = new this.UserServices();
+    const { updateOne, readUserEntity, validateId } = new this.UserServices();
     await validateId(id).catch(next);
-    res.locals[this.constructor.name] = await updateOne(body, { where: { id } })
+    res.locals[this.constructor.name] = await updateOne(readUserEntity(), body, { where: { id } })
       .catch(next);
     delete res.locals[this.constructor.name].data.password;
     next();
   }
 
   async deleteOne({ params: { id } }: Request, res: Response, next: NextFunction) {
-    const { deleteOne, validateId } = new this.UserServices();
+    const { deleteOne, readUserEntity, validateId } = new this.UserServices();
     await validateId(id).catch(next);
-    res.locals[this.constructor.name] = await deleteOne({ where: { id } });
+    res.locals[this.constructor.name] = await deleteOne(readUserEntity(), { where: { id } });
     next();
   }
 }

@@ -8,7 +8,8 @@ export default class Submission extends Assessment {
   constructor(entityClass = SubmissionEntity) {
     super();
     this.SubmissionEntity = entityClass;
-    this.listSuBmissions = this.listSuBmissions.bind(this);
+    this.listSuBmissionsForStudent = this.listSuBmissionsForStudent.bind(this);
+    this.listSubmissionsForMentor = this.listSubmissionsForMentor.bind(this);
     this.createSubmission = this.createAssessment.bind(this);
     this.readSubmissionEntity = this.readSubmissionEntity.bind(this);
   }
@@ -17,7 +18,7 @@ export default class Submission extends Assessment {
     return this.SubmissionEntity;
   }
 
-  async createSubmission(arg: any & SubmissionFields, authorized: any & UserFields) {
+  async createSubmission(arg: any & SubmissionFields, user: any & UserFields) {
     const assessment = await this.fetchOne(
       this.readAssessmentEntity(),
       { where: { id: arg.assessmentId } },
@@ -28,11 +29,12 @@ export default class Submission extends Assessment {
     }
     return this.createOne(
       this.SubmissionEntity,
-      { ...arg, assessment, student: student ?? authorized },
+      { ...arg, assessment, student: student ?? user },
     );
   }
 
-  async listSuBmissions(student: string): Promise<{ message: string, data: Array<unknown> }> {
+  async listSuBmissionsForStudent(student: string):
+    Promise<{ message: string, data: Array<unknown> }> {
     const arg = {
       relation: 'assessment',
       select: ['submission.id', 'submission.student.name', 'submission.student.id', 'submission.submittedAt',
@@ -41,5 +43,14 @@ export default class Submission extends Assessment {
       entity: 'submission',
     };
     return this.fetchAll(this.SubmissionEntity, arg);
+  }
+
+  async listSubmissionsForMentor(mentor: string) {
+    const submissions = await this.dataSrc.manager.createQueryBuilder(this.SubmissionEntity, 'submission')
+      .leftJoinAndSelect('submission.assessment', 'assessment')
+      .leftJoinAndSelect('assessment.mentor', 'mentor')
+      .where('submission.assessment.mentor = :mentor', { mentor })
+      .getMany();
+    return { message: 'Submissions for mentor assessments successfully retrieved', data: submissions };
   }
 }

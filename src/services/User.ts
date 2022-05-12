@@ -16,23 +16,18 @@ export default class User extends Services {
     this.readUserEntity = this.readUserEntity.bind(this);
     this.isAdmin = this.isAdmin.bind(this);
     this.isRestricted = this.isRestricted.bind(this);
-    this.isOwner = this.isOwner.bind(this);
   }
 
   readUserEntity() {
     return this.UserEntity;
   }
 
-  async isAdmin(authorized: UserFields) {
-    if (authorized.role !== 'admin') throw new AppError('Only admins can read or write this data', 'forbidden');
+  async isAdmin(user: UserFields) {
+    if (user.role !== 'admin') throw new AppError('Only admins can read or write this data', 'forbidden');
   }
 
-  async isRestricted(authorized: UserFields) {
-    if (authorized.role === 'student') throw new AppError('Only mentors or admins can read or write this data', 'forbidden');
-  }
-
-  async isOwner(relation: any, authorized: any & UserFields) {
-    if (authorized.id !== relation.id && authorized.role !== 'admin') throw new AppError('Users can read or write data that they are associated with', 'forbidden');
+  async isRestricted(user: UserFields) {
+    if (user.role === 'student') throw new AppError('Only mentors or admins can read or write this data', 'forbidden');
   }
 
   async login({ email, password }: LoginFields): Promise<{ message: string, data: UserEntity }> {
