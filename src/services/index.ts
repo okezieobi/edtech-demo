@@ -21,11 +21,6 @@ export default class Services {
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.validateId = this.validateId.bind(this);
-    this.setResult = this.setResult.bind(this);
-  }
-
-  setResult(message: string, data: any) {
-    return { message: `${this.constructor.name}${message}`, data };
   }
 
   async createOne(entityClass: any, arg: object): Promise<any> {

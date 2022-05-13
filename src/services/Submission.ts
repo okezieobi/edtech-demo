@@ -8,10 +8,10 @@ export default class Submission extends Assessment {
   constructor(entityClass = SubmissionEntity) {
     super();
     this.SubmissionEntity = entityClass;
-    this.listSuBmissionsForStudent = this.listSuBmissionsForStudent.bind(this);
-    this.listSubmissionsForMentor = this.listSubmissionsForMentor.bind(this);
+    this.listSubmissionsByUserRole = this.listSubmissionsByUserRole.bind(this);
     this.createSubmission = this.createSubmission.bind(this);
     this.readSubmissionEntity = this.readSubmissionEntity.bind(this);
+    this.getSubmissionById = this.getSubmissionById.bind(this);
   }
 
   readSubmissionEntity() {
@@ -24,6 +24,7 @@ export default class Submission extends Assessment {
     user: any & UserFields,
     studentId: string,
   ) {
+    await this.validateId(assessmentId);
     const assessment = await this.fetchOne(
       this.readAssessmentEntity(),
       { where: { id: assessmentId } },
@@ -40,25 +41,55 @@ export default class Submission extends Assessment {
     return { message: 'Submission successfully created', data };
   }
 
-  async listSuBmissionsForStudent(student: string):
-    Promise<{ message: string, data: Array<unknown> }> {
-    const arg = {
-      relation: 'assessment',
-      select: ['submission.id', 'submission.student.name', 'submission.student.id', 'submission.submittedAt',
-        'submission.assessment.id', 'submission.assessment.title'],
-      where: student != null ? ['submission.student = :student', { student }] : [],
-      entity: 'submission',
-    };
-    const data = await this.fetchAll(this.SubmissionEntity, arg);
-    return { message: 'Student submissions successfully retrieved', data };
+  async listSubmissionsByUserRole(role: string, user: any & UserFields) {
+    let data: any;
+    switch (role) {
+      case 'student':
+        data = await this.dataSrc.manager.createQueryBuilder(this.SubmissionEntity, 'submission')
+          .leftJoinAndSelect('submission.assessment = : assessment', 'assessment')
+          .select(['submission.id', 'submission.student.name', 'submission.student.id', 'submission.submittedAt',
+            'submission.assessment.id', 'submission.assessment.title'])
+          .where('submission.student = : student', { student: user.id })
+          .getMany();
+        break;
+      case 'mentor':
+        await this.isRestricted(user);
+        data = await this.dataSrc.manager.createQueryBuilder(this.SubmissionEntity, 'submission')
+          .leftJoinAndSelect('submission.assessment', 'assessment')
+          .leftJoinAndSelect('assessment.mentor', 'mentor')
+          .where('submission.assessment.mentor = :mentor', { mentor: user.id })
+          .getMany();
+        break;
+      default:
+        await this.isAdmin(user);
+        data = await this.dataSrc.manager.createQueryBuilder(this.SubmissionEntity, 'submission')
+          .leftJoinAndSelect('submission.assessment = : assessment', 'assessment')
+          .select(['submission.id', 'submission.student.name', 'submission.student.id', 'submission.submittedAt',
+            'submission.assessment.id', 'submission.assessment.title'])
+          .getMany();
+    }
+    return { message: 'Submissions successfully retrieved', data };
   }
 
-  async listSubmissionsForMentor(mentor: string) {
-    const submissions = await this.dataSrc.manager.createQueryBuilder(this.SubmissionEntity, 'submission')
-      .leftJoinAndSelect('submission.assessment', 'assessment')
-      .leftJoinAndSelect('assessment.mentor', 'mentor')
-      .where('submission.assessment.mentor = :mentor', { mentor })
-      .getMany();
-    return { message: 'Submissions for mentor assessments successfully retrieved', data: submissions };
+  async getSubmissionById(role:string, id: string, user: UserFields) {
+    let data;
+    await this.validateId(id);
+    switch (user.role) {
+      case 'student':
+        data = await this.fetchOne(this.SubmissionEntity, { where: { id, student: user } });
+        break;
+      case 'mentor':
+        await this.isRestricted(user);
+        data = await this.dataSrc.manager.createQueryBuilder(this.SubmissionEntity, 'submission')
+          .leftJoinAndSelect('submission.assessment', 'assessment')
+          .leftJoinAndSelect('assessment.mentor', 'mentor')
+          .where('submission.assessment.mentor = :mentor', { mentor: user })
+          .getOne();
+        break;
+      default:
+        await this.isAdmin(user);
+        data = await this.fetchOne(this.SubmissionEntity, { where: { id } });
+    }
+    return { message: 'Submissions successfully retrieved', data };
   }
 }
