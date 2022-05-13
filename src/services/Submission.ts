@@ -10,7 +10,7 @@ export default class Submission extends Assessment {
     this.SubmissionEntity = entityClass;
     this.listSuBmissionsForStudent = this.listSuBmissionsForStudent.bind(this);
     this.listSubmissionsForMentor = this.listSubmissionsForMentor.bind(this);
-    this.createSubmission = this.createAssessment.bind(this);
+    this.createSubmission = this.createSubmission.bind(this);
     this.readSubmissionEntity = this.readSubmissionEntity.bind(this);
   }
 
@@ -18,19 +18,26 @@ export default class Submission extends Assessment {
     return this.SubmissionEntity;
   }
 
-  async createSubmission(arg: any & SubmissionFields, user: any & UserFields) {
+  async createSubmission(
+    arg: any & SubmissionFields,
+    assessmentId: string,
+    user: any & UserFields,
+    studentId: string,
+  ) {
     const assessment = await this.fetchOne(
       this.readAssessmentEntity(),
-      { where: { id: arg.assessmentId } },
+      { where: { id: assessmentId } },
     );
     let student: any;
-    if (arg.studentId) {
+    if (studentId) {
+      await this.isAdmin(user);
       student = await this.fetchOne(this.readUserEntity(), { where: { id: arg.studentId } });
     }
-    return this.createOne(
+    const data = await this.createOne(
       this.SubmissionEntity,
       { ...arg, assessment, student: student ?? user },
     );
+    return { message: 'Submission successfully created', data };
   }
 
   async listSuBmissionsForStudent(student: string):
@@ -42,7 +49,8 @@ export default class Submission extends Assessment {
       where: student != null ? ['submission.student = :student', { student }] : [],
       entity: 'submission',
     };
-    return this.fetchAll(this.SubmissionEntity, arg);
+    const data = await this.fetchAll(this.SubmissionEntity, arg);
+    return { message: 'Student submissions successfully retrieved', data };
   }
 
   async listSubmissionsForMentor(mentor: string) {

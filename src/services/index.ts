@@ -20,14 +20,17 @@ export default class Services {
     this.fetchOne = this.fetchOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
-    this.getOne = this.getOne.bind(this);
     this.validateId = this.validateId.bind(this);
+    this.setResult = this.setResult.bind(this);
   }
 
-  async createOne(entityClass: any, arg: object): Promise<{ message: string, data: unknown}> {
+  setResult(message: string, data: any) {
+    return { message: `${this.constructor.name}${message}`, data };
+  }
+
+  async createOne(entityClass: any, arg: object): Promise<any> {
     const entity = this.dataSrc.manager.create(entityClass, arg);
-    await this.dataSrc.manager.save(entity);
-    return { message: `${this.constructor.name} successfully created`, data: entity };
+    return this.dataSrc.manager.save(entity);
   }
 
   async validateId(id: string, target: boolean = true): Promise<void> {
@@ -43,36 +46,25 @@ export default class Services {
     return data;
   }
 
-  async getOne(entityClass: any, query: any): Promise<{ message: string, data: unknown }> {
-    const entity = await this.fetchOne(entityClass, query);
-    return {
-      message: `${this.constructor.name} successfully retrieved`,
-      data: entity,
-    };
-  }
-
   async fetchAll(entityClass: any, arg: FindParams)
-      : Promise<{ message: string, data: Array<unknown> }> {
-    const data = await this.dataSrc.manager.createQueryBuilder(entityClass, arg.entity)
+      : Promise<Array<any>> {
+    return this.dataSrc.manager.createQueryBuilder(entityClass, arg.entity)
       .leftJoinAndSelect(`${arg.entity}.${arg.relation}`, arg.relation)
       .select(arg.select)
       .where(arg.where[0] ?? '', arg.where[1] ?? {})
       .orderBy(`${arg.entity}.createdAt`, 'DESC')
       .getMany();
-    return { message: `${this.constructor.name}s successfully retrieved`, data };
   }
 
   async updateOne(entityClass: any, query: any, arg: object):
-    Promise<{ message: string, data: any }> {
+    Promise<any> {
     const entity = await this.fetchOne(entityClass, query);
     this.dataSrc.manager.merge(entityClass, entity, arg);
-    await this.dataSrc.manager.save(entity);
-    return { message: `${this.constructor.name} successfully updated`, data: entity };
+    return this.dataSrc.manager.save(entity);
   }
 
-  async deleteOne(entityClass: any, query: any): Promise<{ message: string }> {
+  async deleteOne(entityClass: any, query: any): Promise<void> {
     const entity = await this.fetchOne(entityClass, query);
     await this.dataSrc.manager.remove(entity);
-    return { message: `${this.constructor.name} successfully deleted` };
   }
 }

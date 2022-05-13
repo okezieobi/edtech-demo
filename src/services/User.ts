@@ -16,6 +16,7 @@ export default class User extends Services {
     this.readUserEntity = this.readUserEntity.bind(this);
     this.isAdmin = this.isAdmin.bind(this);
     this.isRestricted = this.isRestricted.bind(this);
+    this.getUserById = this.getUserById.bind(this);
   }
 
   readUserEntity() {
@@ -28,6 +29,19 @@ export default class User extends Services {
 
   async isRestricted(user: UserFields) {
     if (user.role === 'student') throw new AppError('Only mentors or admins can read or write this data', 'forbidden');
+  }
+
+  async signup(arg: UserFields) {
+    const signedUpUser = await this.createOne(this.UserEntity, arg);
+    delete signedUpUser.password;
+    return { message: 'User successfully signedup', data: signedUpUser };
+  }
+
+  async createUser(arg: UserFields, user: UserFields) {
+    await this.isAdmin(user);
+    const createdUser = await this.createOne(this.UserEntity, arg);
+    delete createdUser.password;
+    return { message: 'User successfully created', data: createdUser };
   }
 
   async login({ email, password }: LoginFields): Promise<{ message: string, data: UserEntity }> {
@@ -61,11 +75,19 @@ export default class User extends Services {
     return user;
   }
 
-  async listUsers(): Promise<{ message: string, data: Array<unknown> }> {
+  async listUsers(user: UserFields): Promise<{ message: string, data: Array<unknown> }> {
+    await this.isAdmin(user);
     const data = await this.dataSrc.manager.find(
       this.UserEntity,
       { select: { id: true, name: true, email: true } },
     );
     return { message: 'Users successfully retrieved', data };
+  }
+
+  async getUserById(id: string, user: UserFields) {
+    await this.isAdmin(user);
+    await this.validateId(id);
+    const existingUser = await this.fetchOne(this.UserEntity, { where: { id } });
+    return { message: 'User successfully retrieved', data: existingUser };
   }
 }

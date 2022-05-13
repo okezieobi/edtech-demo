@@ -21,8 +21,6 @@ adminRouter.route('/')
   .post(signup, dispatchResponse)
   .get(listAll, dispatchResponse);
 
-adminRouter.use('/:id', verifyOne);
-
 adminRouter.route('/:id')
   .get(getOne, dispatchResponse)
   .put(updateOne, dispatchResponse)
