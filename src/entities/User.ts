@@ -6,8 +6,8 @@ import { IsEmail, IsIn, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 import Main from './Main';
-import AssessmentEntity from './Assessment';
-import SubmissionEntity from './Submissions';
+import Assessment from './Assessment';
+import Submission from './Submissions';
 import bcrypt from '../utils/bcrypt';
 import AppError from '../errors';
 
@@ -34,15 +34,15 @@ export default class User extends Main implements UserFields {
 
     @Column({ type: 'text' })
     @IsIn(['student', 'mentor', 'admin'])
-      role?: string = 'student';
+      role: string = 'student';
 
-    @Type(() => AssessmentEntity)
-    @OneToMany(() => AssessmentEntity, (assessment) => assessment.mentor, { nullable: true, onDelete: 'CASCADE' })
-      assessments?: AssessmentEntity[];
+    @Type(() => Assessment)
+    @OneToMany(() => Assessment, (assessment) => assessment.mentor, { nullable: true, onDelete: 'CASCADE' })
+      assessments?: Assessment[];
 
-    @Type(() => SubmissionEntity)
-    @OneToMany(() => SubmissionEntity, (submission) => submission.student, { onDelete: 'CASCADE', nullable: true })
-      submissions?: SubmissionEntity[];
+    @Type(() => Submission)
+    @OneToMany(() => Submission, (submission) => submission.student, { onDelete: 'CASCADE', nullable: true })
+      submissions?: Submission[];
 
     @BeforeInsert()
     @BeforeUpdate()

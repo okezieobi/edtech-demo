@@ -1,21 +1,23 @@
-import AssessmentEntity, { AssessmentFields } from '../entities/Assessment';
+import Assessment, { AssessmentFields } from '../entities/Assessment';
 import { UserFields } from '../entities/User';
 import User from './User';
 
-export default class Assessment extends User {
-  private AssessmentEntity: typeof AssessmentEntity;
+export default class AssessmentServices extends User {
+  private Assessment: typeof Assessment;
 
-  constructor(entityClass = AssessmentEntity) {
+  constructor(entityClass = Assessment) {
     super();
-    this.AssessmentEntity = entityClass;
+    this.Assessment = entityClass;
     this.listAssessments = this.listAssessments.bind(this);
     this.createAssessment = this.createAssessment.bind(this);
     this.readAssessmentEntity = this.readAssessmentEntity.bind(this);
     this.getAssessmentById = this.getAssessmentById.bind(this);
+    this.updateAssessmentById = this.updateAssessmentById.bind(this);
+    this.deleteAssessmentById = this.deleteAssessmentById.bind(this);
   }
 
   readAssessmentEntity() {
-    return this.AssessmentEntity;
+    return this.Assessment;
   }
 
   async createAssessment(arg: any & AssessmentFields, mentor: UserFields) {
@@ -29,7 +31,7 @@ export default class Assessment extends User {
       );
     }
     const data = await this.createOne(
-      this.AssessmentEntity,
+      this.Assessment,
       { ...arg, mentor: optMentor ?? mentor },
     );
     return { message: 'Assessment successfully created', data };
@@ -43,13 +45,13 @@ export default class Assessment extends User {
       where: mentor != null ? ['assessment.mentor = :mentor', { mentor }] : [],
       entity: 'assessment',
     };
-    const data = await this.fetchAll(this.AssessmentEntity, arg);
+    const data = await this.fetchAll(this.Assessment, arg);
     return { message: 'Assessments successfully retrieved', data };
   }
 
   async getAssessmentById(id: string) {
     await this.validateId(id, true);
-    const data = await this.fetchOne(this.AssessmentEntity, { where: { id } });
+    const data = await this.fetchOne(this.Assessment, { where: { id } });
     return { message: 'Assessment successfully retrieved', data };
   }
 
@@ -61,16 +63,16 @@ export default class Assessment extends User {
     await this.isRestricted(user);
     await this.validateId(id);
     const data = user.role === 'admin'
-      ? await this.updateOne(this.AssessmentEntity, { where: { id } }, arg)
-      : await this.updateOne(this.AssessmentEntity, { where: { id, mentor: user } }, arg);
+      ? await this.updateOne(this.Assessment, { where: { id } }, arg)
+      : await this.updateOne(this.Assessment, { where: { id, mentor: user } }, arg);
     return { message: 'Assessment successfully updated', data };
   }
 
   async deleteAssessmentById(id: string, user: any & UserFields) {
     await this.isRestricted(user);
     await this.validateId(id);
-    if (user.role === 'admin') await this.deleteOne(this.AssessmentEntity, { where: { id } });
-    else await this.deleteOne(this.AssessmentEntity, { where: { id, mentor: user } });
+    if (user.role === 'admin') await this.deleteOne(this.Assessment, { where: { id } });
+    else await this.deleteOne(this.Assessment, { where: { id, mentor: user } });
     return { message: 'Assessment successfully deleted' };
   }
 }

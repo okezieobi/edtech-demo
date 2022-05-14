@@ -5,8 +5,8 @@ import { IsString, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 import Main from './Main';
-import UserEntity from './User';
-import SubmissionEntity from './Submissions';
+import User from './User';
+import Submission from './Submissions';
 import AppError from '../errors';
 
 interface AssessmentFields {
@@ -25,13 +25,13 @@ export default class Assessment extends Main implements AssessmentFields {
     @IsString()
       description!: string;
 
-    @Type(() => UserEntity)
-    @ManyToOne(() => UserEntity, (mentor) => mentor.assessments)
-      mentor!: UserEntity;
+    @Type(() => User)
+    @ManyToOne(() => User, (mentor) => mentor.assessments)
+      mentor!: User;
 
-    @Type(() => SubmissionEntity)
-    @OneToMany(() => SubmissionEntity, (submission) => submission.assessment, { onDelete: 'CASCADE', nullable: true })
-      submissions?: SubmissionEntity[];
+    @Type(() => Submission)
+    @OneToMany(() => Submission, (submission) => submission.assessment, { onDelete: 'CASCADE', nullable: true })
+      submissions?: Submission[];
 
     @Column({ type: 'timestamptz' })
     @IsDateString()
@@ -41,7 +41,7 @@ export default class Assessment extends Main implements AssessmentFields {
     @BeforeUpdate()
     @BeforeRemove()
     validateRole(): void {
-      if (this.mentor.role === 'student') {
+      if (this.mentor?.role === 'student') {
         throw new AppError('Users must be admin or mentor', 'Forbidden', { msg: 'Assessment write failed, user role invalid' });
       }
     }

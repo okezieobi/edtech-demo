@@ -7,7 +7,7 @@ import {
 import { Type } from 'class-transformer';
 
 import Main from './Main';
-import AssessmentEntity from './Assessment';
+import Assessment from './Assessment';
 import GradeEntity from './Grade';
 import UserEntity from './User';
 
@@ -28,9 +28,9 @@ export default class SubmissionEntity extends Main {
     @CreateDateColumn()
       submittedAt!: Date;
 
-    @Type(() => AssessmentEntity)
-    @ManyToOne(() => AssessmentEntity, (assessment) => assessment.submissions)
-      assessment!: AssessmentEntity;
+    @Type(() => Assessment)
+    @ManyToOne(() => Assessment, (assessment) => assessment.submissions)
+      assessment!: Assessment;
 
     @Type(() => UserEntity)
     @ManyToOne(() => UserEntity, (student) => student.submissions)

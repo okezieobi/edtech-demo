@@ -5,7 +5,7 @@ import { } from 'class-validator';
 import { Type } from 'class-transformer';
 
 import Main from './Main';
-import SubmissionEntity from './Submissions';
+import Submission from './Submissions';
 import AppError from '../errors';
 
 interface GradeFields {
@@ -21,9 +21,9 @@ export default class GradeEntity extends Main implements GradeFields {
     @Column({ type: 'text' })
       remarks!: string;
 
-    @Type(() => SubmissionEntity)
-    @OneToOne(() => SubmissionEntity, (submission) => submission.grade)
-      submission!: SubmissionEntity;
+    @Type(() => Submission)
+    @OneToOne(() => Submission, (submission) => submission.grade)
+      submission!: Submission;
 
    @BeforeInsert()
     @BeforeUpdate()

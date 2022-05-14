@@ -1,13 +1,13 @@
-import GradeEntity, { GradeFields } from '../entities/Grade';
+import Grade, { GradeFields } from '../entities/Grade';
 import Submission from './Submission';
 import { UserFields } from '../entities/User';
 
-export default class Grade extends Submission {
-  private GradeEntity: typeof GradeEntity;
+export default class GradeServices extends Submission {
+  private Grade: typeof Grade;
 
-  constructor(entityClass = GradeEntity) {
+  constructor(entityClass = Grade) {
     super();
-    this.GradeEntity = entityClass;
+    this.Grade = entityClass;
     this.listGradesForMentor = this.listGradesForMentor.bind(this);
     this.listGradesForStudent = this.listGradesForStudent.bind(this);
     this.createGrade = this.createGrade.bind(this);
@@ -15,7 +15,7 @@ export default class Grade extends Submission {
   }
 
   readGradeEntity() {
-    return this.GradeEntity;
+    return this.Grade;
   }
 
   async createGrade(arg: any & GradeFields, authorized: UserFields) {
@@ -25,18 +25,18 @@ export default class Grade extends Submission {
         this.readSubmissionEntity(),
         { where: { id: arg.submissionId } },
       );
-      return this.createOne(this.GradeEntity, { ...arg, submission });
+      return this.createOne(this.Grade, { ...arg, submission });
     }
     const submission = await this.dataSrc.manager.createQueryBuilder(this.readSubmissionEntity(), 'submission')
       .leftJoinAndSelect('submission.assessment', 'assessment')
       .leftJoinAndSelect('assessment.mentor', 'mentor')
       .where('submission.assessment.mentor = :mentor', { mentor: authorized })
       .getOne();
-    return this.createOne(this.GradeEntity, { ...arg, submission });
+    return this.createOne(this.Grade, { ...arg, submission });
   }
 
   async listGradesForStudent(student: UserFields) {
-    const grades = this.dataSrc.manager.createQueryBuilder(this.GradeEntity, 'grade')
+    const grades = this.dataSrc.manager.createQueryBuilder(this.Grade, 'grade')
       .leftJoinAndSelect('grade.submission', 'submission')
       .leftJoinAndSelect('submission.student', 'student')
       .where('grade.submission.student = : student', { student })
@@ -46,7 +46,7 @@ export default class Grade extends Submission {
   }
 
   async listGradesForMentor(mentor: UserFields) {
-    const grades = await this.dataSrc.manager.createQueryBuilder(this.GradeEntity, 'grade')
+    const grades = await this.dataSrc.manager.createQueryBuilder(this.Grade, 'grade')
       .leftJoinAndSelect('grade.submission', 'submission')
       .leftJoinAndSelect('submission.assessment', 'assessment')
       .leftJoinAndSelect('assessment.mentor', 'mentor')

@@ -13,6 +13,7 @@ export default class Assessment extends Controller {
     this.listAll = this.listAll.bind(this);
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
+    this.deleteOne = this.deleteOne.bind(this);
   }
 
   async createOne(
@@ -21,13 +22,10 @@ export default class Assessment extends Controller {
     next: NextFunction,
   ): Promise<void> {
     const { createAssessment } = new this.AssessmentServices();
-    return this.handleService({
-      method: createAssessment,
-      res,
-      next,
-      arg: { ...body, mentor: res.locals.authorized },
-      status: 201,
-    });
+    res.locals[this.constructor.name] = await await createAssessment(body, res.locals.authorized)
+      .catch(next);
+    res.status(201);
+    next();
   }
 
   async listAll({ query }: Request, res: Response, next: NextFunction): Promise<void> {
@@ -41,13 +39,10 @@ export default class Assessment extends Controller {
   }
 
   async getOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
-    const { getOne, validateId, readAssessmentEntity } = new this.AssessmentServices();
-    await validateId(id).catch(next);
-    res.locals[this.constructor.name] = await getOne(
-      readAssessmentEntity,
-      { where: { id } },
-    ).catch(next);
-    next();
+    const { getAssessmentById } = new this.AssessmentServices();
+    await this.handleService({
+      method: getAssessmentById, res, next, arg: id,
+    });
   }
 
   async updateOne(
@@ -55,12 +50,19 @@ export default class Assessment extends Controller {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const { updateOne, readAssessmentEntity } = new this.AssessmentServices();
-    res.locals[this.constructor.name] = await updateOne(
-      readAssessmentEntity(),
-      { where: { id: params.id, mentor: body.mentor ?? res.locals.authorized } },
+    const { updateAssessmentById } = new this.AssessmentServices();
+    res.locals[this.constructor.name] = await updateAssessmentById(
+      params.id,
       body,
+      res.locals.authorized,
     ).catch(next);
     next();
+  }
+
+  async deleteOne({ params: { id } }: Request, res: Response, next: NextFunction) {
+    const { deleteAssessmentById } = new this.AssessmentServices();
+    await this.handleService({
+      method: deleteAssessmentById, res, next, arg: id,
+    });
   }
 }
