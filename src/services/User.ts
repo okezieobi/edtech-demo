@@ -1,15 +1,15 @@
 /* eslint-disable class-methods-use-this */
 import Services from '.';
-import User, { UserFields } from '../entities/User';
+import UserEntity, { UserFields } from '../entities/User';
 import LoginValidator, { LoginFields } from '../validators/User.login';
 import AppError from '../errors';
 
-export default class UserServices extends Services {
-  private User: typeof User;
+export default class User extends Services {
+  private UserEntity: typeof UserEntity;
 
-  constructor(entityClass = User) {
+  constructor(entityClass = UserEntity) {
     super();
-    this.User = entityClass;
+    this.UserEntity = entityClass;
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
     this.listUsers = this.listUsers.bind(this);
@@ -24,7 +24,7 @@ export default class UserServices extends Services {
   }
 
   readUserEntity() {
-    return this.User;
+    return this.UserEntity;
   }
 
   async isAdmin(user: UserFields) {
@@ -36,14 +36,14 @@ export default class UserServices extends Services {
   }
 
   async signup(arg: UserFields) {
-    const signedUpUser = await this.createOne(this.User, arg);
+    const signedUpUser = await this.createOne(this.UserEntity, arg);
     delete signedUpUser.password;
     return { message: 'User successfully signedup', data: signedUpUser };
   }
 
   async createUser(arg: UserFields, user: UserFields) {
     await this.isAdmin(user);
-    const createdUser = await this.createOne(this.User, arg);
+    const createdUser = await this.createOne(this.UserEntity, arg);
     delete createdUser.password;
     return { message: 'User successfully created', data: createdUser };
   }
@@ -53,8 +53,8 @@ export default class UserServices extends Services {
     userParams.email = email;
     userParams.password = password;
     await userParams.validate({ validationError: { target: false }, forbidUnknownValues: true });
-    const repo = this.dataSrc.getRepository(this.User);
-    const userExists = await repo.findOne({
+    const repo = this.dataSrc.getRepository(this.UserEntity);
+    const userExists: any = await repo.findOne({
       where: { email },
       select: {
         id: true,
@@ -72,9 +72,9 @@ export default class UserServices extends Services {
     return { message: 'Registered user successfully signed in', data: userExists };
   }
 
-  async auth(id: string): Promise<User> {
+  async auth(id: string): Promise<UserEntity> {
     await this.validateId(id, false);
-    const user = await this.dataSrc.manager.findOneBy(this.User, { id });
+    const user = await this.dataSrc.manager.findOneBy(this.UserEntity, { id });
     if (user == null) throw new AppError('User not found', 'NotFound');
     return user;
   }
@@ -82,7 +82,7 @@ export default class UserServices extends Services {
   async listUsers(user: UserFields): Promise<{ message: string, data: Array<unknown> }> {
     await this.isAdmin(user);
     const data = await this.dataSrc.manager.find(
-      this.User,
+      this.UserEntity,
       { select: { id: true, name: true, email: true } },
     );
     return { message: 'Users successfully retrieved', data };
@@ -91,21 +91,28 @@ export default class UserServices extends Services {
   async getUserById(id: string, user: UserFields) {
     await this.isAdmin(user);
     await this.validateId(id);
-    const existingUser = await this.fetchOne(this.User, { where: { id } });
+    const existingUser = await this.fetchOne(this.UserEntity, { where: { id } });
     return { message: 'User successfully retrieved', data: existingUser };
   }
 
-  async updateUserById(id: string, arg: UserFields, user: UserFields) {
+  async updateUserById(id: string, user: UserFields, arg: any) {
     await this.validateId(id);
     await this.isAdmin(user);
-    const updatedUser = await this.updateOne(this.User, { where: { id } }, arg);
-    return { message: 'User successfully updated', data: updatedUser };
+    const foundUser = await this.dataSrc.getRepository(UserEntity).findOneOrFail({
+      where: { id },
+      select: {
+        id: true, name: true, email: true, password: true,
+      },
+    });
+    this.dataSrc.getRepository(UserEntity).merge(foundUser, arg);
+    const data = await this.dataSrc.getRepository(UserEntity).save(foundUser);
+    return { message: 'User successfully updated', data };
   }
 
   async deleteUserById(id: string, user: UserFields) {
     await this.validateId(id);
     await this.isAdmin(user);
-    await this.deleteOne(this.User, { where: { id } });
+    await this.deleteOne(this.UserEntity, { where: { id } });
     return { message: 'User successfully deleted' };
   }
 }

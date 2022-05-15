@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import { QueryFailedError } from 'typeorm';
+import { QueryFailedError, EntityNotFoundError } from 'typeorm';
 import { ValidationError } from 'class-validator';
 
 import AppError from '../errors';
@@ -42,25 +42,26 @@ const handleJwtError = (
   } else next(err);
 };
 
-// const handleEntityNotFoundErr = (
-//   err: Error,
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ): void => {
-//   if (err instanceof EntityNotFoundError) {
-//     res.status(404);
-//     next({
-//       isClient: errorMarkers.isClient,
-//       response: {
-//         status: errorMarkers.status,
-//         message: 'Resource not found',
-//         data: { type: 'EntityNotFoundError', msg: err.message,
-// timestamp: errorMarkers.timestamp },
-//       },
-//     });
-//   } else next(err);
-// };
+const handleEntityNotFoundErr = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  if (err instanceof EntityNotFoundError) {
+    res.status(404);
+    next({
+      isClient: errorMarkers.isClient,
+      response: {
+        status: errorMarkers.status,
+        ...err,
+        data: {
+          timestamp: errorMarkers.timestamp,
+        },
+      },
+    });
+  } else next(err);
+};
 
 const handleSQLErr = (err: Error, req: Request, res: Response, next: NextFunction): void => {
   if (err instanceof QueryFailedError) {
@@ -127,7 +128,7 @@ const dispatchClientError = ((
 
 export default [
   handleJwtError,
-  // handleEntityNotFoundErr,
+  handleEntityNotFoundErr,
   handleSQLErr,
   handleValidationError,
   handleCustomError,

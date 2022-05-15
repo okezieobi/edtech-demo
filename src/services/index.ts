@@ -16,8 +16,9 @@ export default class Services {
   }
 
   async createOne(entityClass: any, arg: object): Promise<any> {
-    const entity = this.dataSrc.manager.create(entityClass, arg);
-    return this.dataSrc.manager.save(entity);
+    const repo = this.dataSrc.getRepository(entityClass);
+    const entity = repo.create(arg);
+    return repo.save(entity);
   }
 
   async validateId(id: string, target: boolean = true): Promise<void> {
@@ -27,21 +28,24 @@ export default class Services {
   }
 
   async fetchOne(entityClass: any, query: any):
-        Promise<any> {
-    const data = await this.dataSrc.manager.findOne(entityClass, query);
+    Promise<any> {
+    const repo = this.dataSrc.getRepository(entityClass);
+    const data = await repo.findOne(query);
     if (data == null) throw new AppError(`${this.constructor.name} not found`, 'NotFound', { query });
     return data;
   }
 
   async updateOne(entityClass: any, query: any, arg: object):
     Promise<any> {
-    const entity = await this.fetchOne(entityClass, query);
-    this.dataSrc.manager.merge(entityClass, entity, arg);
-    return this.dataSrc.manager.save(entity);
+    const repo = this.dataSrc.getRepository(entityClass);
+    const entity = await repo.findOne(query);
+    repo.merge(arg, entity);
+    return repo.save(entity);
   }
 
   async deleteOne(entityClass: any, query: any): Promise<void> {
     const entity = await this.fetchOne(entityClass, query);
-    await this.dataSrc.manager.remove(entity);
+    const repo = this.dataSrc.getRepository(entityClass);
+    await repo.remove(entity);
   }
 }
