@@ -74,7 +74,7 @@ export default class SubmissionServices extends Assessment {
   async getSubmissionById(role:string, id: string, user: UserFields) {
     let data;
     await this.validateId(id);
-    switch (user.role) {
+    switch (role) {
       case 'student':
         data = await this.fetchOne(this.Submission, { where: { id, student: user } });
         break;

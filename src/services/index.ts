@@ -3,20 +3,12 @@ import AppDataSrc from '../db';
 import AppError from '../errors';
 import IdValidator from '../validators/Id';
 
-interface FindParams {
-    relation: string;
-    select: Array<string>,
-    where: Array<any>,
-    entity: string;
-}
-
 export default class Services {
   dataSrc: typeof AppDataSrc;
 
   constructor(dataSrc = AppDataSrc) {
     this.dataSrc = dataSrc;
     this.createOne = this.createOne.bind(this);
-    this.fetchAll = this.fetchAll.bind(this);
     this.fetchOne = this.fetchOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
@@ -39,16 +31,6 @@ export default class Services {
     const data = await this.dataSrc.manager.findOne(entityClass, query);
     if (data == null) throw new AppError(`${this.constructor.name} not found`, 'NotFound', { query });
     return data;
-  }
-
-  async fetchAll(entityClass: any, arg: FindParams)
-      : Promise<Array<any>> {
-    return this.dataSrc.manager.createQueryBuilder(entityClass, arg.entity)
-      .leftJoinAndSelect(`${arg.entity}.${arg.relation}`, arg.relation)
-      .select(arg.select)
-      .where(arg.where[0] ?? '', arg.where[1] ?? {})
-      .orderBy(`${arg.entity}.createdAt`, 'DESC')
-      .getMany();
   }
 
   async updateOne(entityClass: any, query: any, arg: object):

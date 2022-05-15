@@ -1,12 +1,11 @@
 import {
-  Entity, Column, OneToOne, BeforeInsert, BeforeRemove, BeforeUpdate,
+  Entity, Column, OneToOne,
 } from 'typeorm';
-import { } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 import Main from './Main';
 import Submission from './Submissions';
-import AppError from '../errors';
 
 interface GradeFields {
   mark: string;
@@ -16,23 +15,18 @@ interface GradeFields {
 @Entity()
 export default class GradeEntity extends Main implements GradeFields {
     @Column({ type: 'text' })
+    @IsString()
+    @IsNotEmpty()
       mark!: string;
 
     @Column({ type: 'text' })
+    @IsString()
+    @IsNotEmpty()
       remarks!: string;
 
     @Type(() => Submission)
     @OneToOne(() => Submission, (submission) => submission.grade)
       submission!: Submission;
-
-   @BeforeInsert()
-    @BeforeUpdate()
-    @BeforeRemove()
-    validateRole(): void {
-      if (this.submission.assessment.mentor.role === 'student') {
-        throw new AppError('Only mentors or admins can write to this data, user role is student', 'Forbidden', { msg: 'Grade write failed, user role is student' });
-      }
-    }
 }
 
 export { GradeFields };

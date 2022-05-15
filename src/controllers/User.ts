@@ -88,7 +88,6 @@ export default class User extends Controller {
     const { updateUserById } = new this.UserServices();
     res.locals[this.constructor.name] = await updateUserById(id, res.locals.authorized, body)
       .catch(next);
-    delete res.locals[this.constructor.name].data.password;
     next();
   }
 

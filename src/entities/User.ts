@@ -2,7 +2,9 @@ import {
   Entity, Column, BeforeInsert, BeforeUpdate,
   OneToMany,
 } from 'typeorm';
-import { IsEmail, IsIn, IsString } from 'class-validator';
+import {
+  IsEmail, IsNotEmpty, IsString,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 import Main from './Main';
@@ -30,11 +32,11 @@ export default class User extends Main implements UserFields {
 
     @Column({ select: false, type: 'text' })
     @IsString()
+    @IsNotEmpty()
       password?: string;
 
-    @Column({ type: 'text' })
-    @IsIn(['student', 'mentor', 'admin'])
-      role: string = 'student';
+    @Column({ type: 'enum', default: 'student', enum: ['student', 'admin', 'mentor'] })
+      role!: string;
 
     @Type(() => Assessment)
     @OneToMany(() => Assessment, (assessment) => assessment.mentor, { nullable: true, onDelete: 'CASCADE' })

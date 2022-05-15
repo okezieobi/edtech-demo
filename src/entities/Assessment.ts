@@ -1,13 +1,12 @@
 import {
-  Entity, Column, ManyToOne, BeforeInsert, BeforeUpdate, OneToMany, BeforeRemove,
+  Entity, Column, ManyToOne, OneToMany,
 } from 'typeorm';
-import { IsString, IsDateString } from 'class-validator';
+import { IsString, IsDateString, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 
 import Main from './Main';
 import User from './User';
 import Submission from './Submissions';
-import AppError from '../errors';
 
 interface AssessmentFields {
   title: string;
@@ -19,10 +18,12 @@ interface AssessmentFields {
 export default class Assessment extends Main implements AssessmentFields {
     @Column({ type: 'text' })
     @IsString()
+    @IsNotEmpty()
       title!: string;
 
     @Column({ type: 'text' })
     @IsString()
+    @IsNotEmpty()
       description!: string;
 
     @Type(() => User)
@@ -36,15 +37,6 @@ export default class Assessment extends Main implements AssessmentFields {
     @Column({ type: 'timestamptz' })
     @IsDateString()
       deadline!: Date;
-
-    @BeforeInsert()
-    @BeforeUpdate()
-    @BeforeRemove()
-    validateRole(): void {
-      if (this.mentor?.role === 'student') {
-        throw new AppError('Users must be admin or mentor', 'Forbidden', { msg: 'Assessment write failed, user role invalid' });
-      }
-    }
 }
 
 export { AssessmentFields };

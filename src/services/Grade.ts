@@ -8,8 +8,7 @@ export default class GradeServices extends Submission {
   constructor(entityClass = Grade) {
     super();
     this.Grade = entityClass;
-    this.listGradesForMentor = this.listGradesForMentor.bind(this);
-    this.listGradesForStudent = this.listGradesForStudent.bind(this);
+    this.listGrades = this.listGrades.bind(this);
     this.createGrade = this.createGrade.bind(this);
     this.readGradeEntity = this.readGradeEntity.bind(this);
   }
@@ -35,24 +34,31 @@ export default class GradeServices extends Submission {
     return this.createOne(this.Grade, { ...arg, submission });
   }
 
-  async listGradesForStudent(student: UserFields) {
-    const grades = this.dataSrc.manager.createQueryBuilder(this.Grade, 'grade')
-      .leftJoinAndSelect('grade.submission', 'submission')
-      .leftJoinAndSelect('submission.student', 'student')
-      .where('grade.submission.student = : student', { student })
-      .select(['grade.id', 'grade.mark', 'grade.submission.id', 'grade.createdAt'])
-      .getMany();
-    return { message: 'Student grades successfully retrieved', data: grades };
-  }
-
-  async listGradesForMentor(mentor: UserFields) {
-    const grades = await this.dataSrc.manager.createQueryBuilder(this.Grade, 'grade')
-      .leftJoinAndSelect('grade.submission', 'submission')
-      .leftJoinAndSelect('submission.assessment', 'assessment')
-      .leftJoinAndSelect('assessment.mentor', 'mentor')
-      .where('submission.assessment.mentor = :mentor', { mentor })
-      .select(['grade.id', 'grade.mark', 'grade.submission.id', 'grade.createdAt'])
-      .getMany();
-    return { message: 'Grades for mentor assessments successfully retrieved', data: grades };
+  async listGrades(role: string, user: any & UserFields) {
+    let data: any;
+    switch (role) {
+      case 'student':
+        data = await this.dataSrc.manager.createQueryBuilder(this.Grade, 'grade')
+          .leftJoinAndSelect('grade.submission', 'submission')
+          .leftJoinAndSelect('submission.student', 'student')
+          .where('grade.submission.student = : student', { student: user.id })
+          .select(['grade.id', 'grade.mark', 'grade.submission.id', 'grade.createdAt'])
+          .getMany();
+        break;
+      case 'mentor':
+        await this.isRestricted(user);
+        data = await this.dataSrc.manager.createQueryBuilder(this.Grade, 'grade')
+          .leftJoinAndSelect('grade.submission', 'submission')
+          .leftJoinAndSelect('submission.assessment', 'assessment')
+          .leftJoinAndSelect('assessment.mentor', 'mentor')
+          .where('submission.assessment.mentor = :mentor', { mentor: user.id })
+          .select(['grade.id', 'grade.mark', 'grade.submission.id', 'grade.createdAt'])
+          .getMany();
+        break;
+      default:
+        await this.isAdmin(user);
+        data = await this.dataSrc.manager.find(this.Grade, {});
+    }
+    return { message: 'Grades successfully retrieved', data };
   }
 }

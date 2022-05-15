@@ -20,11 +20,12 @@ export default class AssessmentServices extends User {
     return this.Assessment;
   }
 
-  async createAssessment(arg: any & AssessmentFields, mentor: UserFields) {
+  async createAssessment(arg: any & AssessmentFields, user: UserFields) {
+    await this.isRestricted(user);
     let optMentor: any;
     if (arg.mentorId != null) {
-      await this.isAdmin(mentor);
-      await this.validateId(arg.mentor);
+      await this.isAdmin(user);
+      await this.validateId(arg.mentorId);
       optMentor = await this.fetchOne(
         this.readUserEntity(),
         { where: { id: arg.mentorId } },
@@ -32,25 +33,27 @@ export default class AssessmentServices extends User {
     }
     const data = await this.createOne(
       this.Assessment,
-      { ...arg, mentor: optMentor ?? mentor },
+      { ...arg, mentor: optMentor ?? user },
     );
     return { message: 'Assessment successfully created', data };
   }
 
   async listAssessments(mentor: string): Promise<{ message: string, data: Array<unknown> }> {
-    const arg = {
-      relation: 'mentor',
-      select: ['assessment.id', 'mentor.id', 'mentor.name', 'mentor.role',
-        'assessment.title', 'assessment.deadline', 'assessment.createdAt'],
-      where: mentor != null ? ['assessment.mentor = :mentor', { mentor }] : [],
-      entity: 'assessment',
-    };
-    const data = await this.fetchAll(this.Assessment, arg);
+    const data = mentor != null ? await this.dataSrc.manager.createQueryBuilder(this.Assessment, 'assessment')
+      .leftJoinAndSelect('assessment.mentor', 'mentor')
+      .where('assessment.mentor = :mentor', { mentor })
+      .select(['assessment.id', 'mentor.id', 'mentor.name', 'mentor.role',
+        'assessment.title', 'assessment.deadline', 'assessment.createdAt'])
+      .getMany() : await this.dataSrc.manager.createQueryBuilder(this.Assessment, 'assessment')
+      .leftJoinAndSelect('assessment.mentor', 'mentor')
+      .select(['assessment.id', 'mentor.id', 'mentor.name', 'mentor.role',
+        'assessment.title', 'assessment.deadline', 'assessment.createdAt'])
+      .getMany();
     return { message: 'Assessments successfully retrieved', data };
   }
 
   async getAssessmentById(id: string) {
-    await this.validateId(id, true);
+    await this.validateId(id);
     const data = await this.fetchOne(this.Assessment, { where: { id } });
     return { message: 'Assessment successfully retrieved', data };
   }

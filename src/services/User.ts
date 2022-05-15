@@ -28,11 +28,11 @@ export default class UserServices extends Services {
   }
 
   async isAdmin(user: UserFields) {
-    if (user.role !== 'admin') throw new AppError('Only admins can read or write this data', 'forbidden');
+    if (user.role === 'student' || user.role === 'mentor') throw new AppError('Only admins can read or write this data', 'Forbidden');
   }
 
   async isRestricted(user: UserFields) {
-    if (user.role === 'student') throw new AppError('Only mentors or admins can read or write this data', 'forbidden');
+    if (user.role === 'student') throw new AppError('Only mentors or admins can read or write this data', 'Forbidden');
   }
 
   async signup(arg: UserFields) {
