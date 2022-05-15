@@ -10,6 +10,7 @@ const testUserInput: any = {
   name: 'test-username',
   email: 'test@email.com',
   password: 'test-password',
+  role: 'student',
 };
 
 const testAdminInput: any = {

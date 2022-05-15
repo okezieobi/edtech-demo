@@ -17,7 +17,7 @@ interface UserFields {
   email: string
   name: string;
   password?: string;
-  role?: string;
+  role: string;
 }
 
 @Entity()
@@ -28,6 +28,7 @@ export default class User extends Main implements UserFields {
 
     @Column({ type: 'text' })
     @IsString()
+    @IsNotEmpty()
       name!: string;
 
     @Column({ select: false, type: 'text' })
@@ -35,7 +36,9 @@ export default class User extends Main implements UserFields {
     @IsNotEmpty()
       password?: string;
 
-    @Column({ type: 'enum', default: 'student', enum: ['student', 'admin', 'mentor'] })
+    @Column({ type: 'text', default: 'student', enum: ['student', 'admin', 'mentor'] })
+    @IsString()
+    @IsNotEmpty()
       role!: string;
 
     @Type(() => Assessment)
