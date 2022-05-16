@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import AppDataSrc from '../db';
-import AppError from '../errors';
+import AppError from '../Error';
 import IdValidator from '../validators/Id';
 
 export default class Services {

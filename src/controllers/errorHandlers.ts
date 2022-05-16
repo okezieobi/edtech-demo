@@ -3,7 +3,7 @@ import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { QueryFailedError, EntityNotFoundError } from 'typeorm';
 import { ValidationError } from 'class-validator';
 
-import AppError from '../errors';
+import AppError from '../Error';
 
 interface ResponseError extends Error {
     isClient: boolean;

@@ -2,7 +2,7 @@
 import Services from '.';
 import User, { UserFields } from '../entities/User';
 import LoginValidator, { LoginFields } from '../validators/User.login';
-import AppError from '../errors';
+import AppError from '../Error';
 
 export default class UserServices extends Services {
   private User: typeof User;
@@ -106,6 +106,7 @@ export default class UserServices extends Services {
     });
     this.dataSrc.getRepository(User).merge(foundUser, arg);
     const data = await this.dataSrc.getRepository(User).save(foundUser);
+    await this.dataSrc.getRepository(User).update({ id }, data);
     return { message: 'User successfully updated', data };
   }
 
