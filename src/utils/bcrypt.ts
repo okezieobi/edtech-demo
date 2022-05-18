@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
 
 export default {
-  async hashString(arg: string) {
-    const salt = await bcrypt.genSalt();
-    return bcrypt.hash(`${arg}`, salt);
+  hashString(arg: string | any) {
+    const salt = bcrypt.genSaltSync();
+    return bcrypt.hashSync(`${arg}`, salt);
   },
 
   async compareString(arg: string, hashedArg?: string) {

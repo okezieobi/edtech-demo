@@ -1,6 +1,6 @@
 import { Optional } from 'sequelize';
 import {
-  Model, Table, Column, DataType, ForeignKey, BelongsTo, HasOne,
+  Model, Table, Column, DataType, ForeignKey, BelongsTo, HasOne, Is,
 } from 'sequelize-typescript';
 import { isURL, arrayMaxSize, arrayNotEmpty } from 'class-validator';
 
@@ -10,8 +10,8 @@ import Grade from './Grade';
 
 interface SubmissionFields {
     id: string;
-  links: Array<string>
-  submittedAt: Date;
+    links: Array<string>
+    submittedAt: Date;
 }
 
 interface SubmissionCreationFields extends Optional<SubmissionFields, 'id'> {}
@@ -28,19 +28,19 @@ export default class Submission extends Model<SubmissionCreationFields, Submissi
  })
    id!: string;
 
+  @Is('isArrayUrls', (value: Array<string>) => {
+    arrayNotEmpty(value);
+    arrayMaxSize(value, 4);
+    value.forEach((val) => isURL(val));
+  })
     @Column({
       allowNull: false,
-      type: DataType.ARRAY,
+      type: DataType.ARRAY(DataType.STRING),
       validate: {
         isArray: true,
-        isArrayOfUrls(value: Array<string>) {
-          arrayNotEmpty(value);
-          arrayMaxSize(value, 4);
-          value.forEach((val) => isURL(val));
-        },
       },
     })
-      links!: Array<string>;
+    links!: Array<string>;
 
   @Column({
     type: DataType.DATE,

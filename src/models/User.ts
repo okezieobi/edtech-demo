@@ -1,7 +1,6 @@
 import { Optional } from 'sequelize';
 import {
   Model, Table, Column, DataType, HasMany,
-  BeforeCreate, BeforeUpdate, BeforeUpsert,
 } from 'sequelize-typescript';
 
 import AppError from '../Error';
@@ -29,7 +28,7 @@ export default class User extends Model<UserFields, UserCreationFields> {
       primaryKey: true,
       defaultValue: DataType.UUIDV4,
     })
-      id!: string;
+  declare id: string;
 
     @Column({
       allowNull: false,
@@ -39,38 +38,34 @@ export default class User extends Model<UserFields, UserCreationFields> {
         isEmail: true,
       },
     })
-      email!: string;
+    declare email: string;
 
     @Column({
       allowNull: false,
       type: DataType.STRING,
     })
-      name!: string;
+    declare name: string;
 
     @Column({
       allowNull: false,
       type: DataType.TEXT,
+      set(val) {
+        this.setDataValue('password', bcrypt.hashString(val));
+      },
     })
-      password?: string;
+    declare password?: string;
 
     @Column({
       defaultValue: 'student',
       type: DataType.ENUM('student', 'admin', 'mentor'),
     })
-      role!: string;
+    declare role: string;
 
     @HasMany(() => Assessment)
-      assessments!: Assessment[];
+    declare assessments?: Assessment[];
 
     @HasMany(() => Submission)
-      submissions!: Submission[];
-
-    @BeforeCreate
-    @BeforeUpdate
-    @BeforeUpsert
-    async hashPassword(): Promise<void> {
-      if (this.password != null) this.password = await bcrypt.hashString(this.password);
-    }
+    declare submissions?: Submission[];
 
     async validatePassword(password: string, param: string = 'password'): Promise<void> {
       const isValidPassword = await bcrypt.compareString(password, this.password);
@@ -79,3 +74,5 @@ export default class User extends Model<UserFields, UserCreationFields> {
       }
     }
 }
+
+export { UserFields };

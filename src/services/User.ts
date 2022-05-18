@@ -1,19 +1,18 @@
 /* eslint-disable class-methods-use-this */
 import Services from '.';
-import User, { UserFields } from '../entities/User';
-import LoginValidator, { LoginFields } from '../validators/User.login';
-import AppError from '../Error';
+import User, { UserFields } from '../models/User';
+import IsUser, { IsUserFields } from '../validators/User';
 
 export default class UserServices extends Services {
-  private User: typeof User;
+  protected User: typeof User;
 
-  constructor(entityClass = User) {
+  constructor(model = User) {
     super();
-    this.User = entityClass;
+    this.User = model;
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
     this.listUsers = this.listUsers.bind(this);
-    this.readUserEntity = this.readUserEntity.bind(this);
+    this.readUserModel = this.readUserModel.bind(this);
     this.isAdmin = this.isAdmin.bind(this);
     this.isRestricted = this.isRestricted.bind(this);
     this.getUserById = this.getUserById.bind(this);
@@ -23,97 +22,88 @@ export default class UserServices extends Services {
     this.deleteUserById = this.deleteUserById.bind(this);
   }
 
-  readUserEntity() {
+  readUserModel() {
     return this.User;
   }
 
   async isAdmin(user: UserFields) {
-    if (user.role === 'student' || user.role === 'mentor') throw new AppError('Only admins can read or write this data', 'Forbidden');
+    const isUser = new IsUser();
+    isUser.admin = user.role;
+    return isUser.validate({ groups: ['admin'], validationError: { target: false } });
   }
 
   async isRestricted(user: UserFields) {
-    if (user.role === 'student') throw new AppError('Only mentors or admins can read or write this data', 'Forbidden');
+    const isUser = new IsUser();
+    isUser.restricted = user.role;
+    return isUser.validate({ groups: ['restricted'], validationError: { target: false } });
   }
 
   async signup(arg: UserFields) {
-    const signedUpUser = await this.createOne(this.User, arg);
-    delete signedUpUser.password;
-    return { message: 'User successfully signed up', data: signedUpUser };
+    const data = await this.User.create(arg);
+    delete data.password;
+    return { message: 'User successfully signed up', data };
   }
 
   async createUser(arg: UserFields, user: UserFields) {
     await this.isAdmin(user);
-    const createdUser = await this.createOne(this.User, arg);
-    delete createdUser.password;
-    return { message: 'User successfully created', data: createdUser };
+    const data = new this.User(arg);
+    await data.save();
+    delete data.password;
+    return { message: 'User successfully created', data };
   }
 
-  async login({ email, password }: LoginFields): Promise<{ message: string, data: User }> {
-    const userParams = new LoginValidator();
+  async login({ email, password }: IsUserFields): Promise<{ message: string, data: User | null }> {
+    const userParams = new IsUser();
     userParams.email = email;
     userParams.password = password;
-    await userParams.validate({ validationError: { target: false }, forbidUnknownValues: true });
-    const repo = this.dataSrc.getRepository(this.User);
-    const userExists: any = await repo.findOne({
+    await userParams.validate({ validationError: { target: true }, groups: ['login'] });
+    const data = await this.User.findOne({
       where: { email },
-      select: {
-        id: true,
-        password: true,
-        name: true,
-        role: true,
-        email: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
-    if (userExists == null) throw new AppError('User not found', 'NotFound', { param: 'email', value: email });
-    await userExists.validatePassword(password);
-    delete userExists.password;
-    return { message: 'Registered user successfully signed in', data: userExists };
+    await this.validateFound(data);
+    await data!.validatePassword(password);
+    delete data!.password;
+    return { message: 'Registered user successfully signed in', data };
   }
 
-  async auth(id: string): Promise<User> {
+  async auth(id: string): Promise<User | null> {
     await this.validateId(id, false);
-    const user = await this.dataSrc.manager.findOneBy(this.User, { id });
-    if (user == null) throw new AppError('User not found', 'NotFound');
+    const user = await this.User.findByPk(id, { attributes: { exclude: ['password'] } });
+    const isUser = new IsUser();
+    isUser.$exists = user;
+    await isUser.validate({ validationError: { target: false }, groups: ['userNotFound'] });
     return user;
   }
 
   async listUsers(user: UserFields): Promise<{ message: string, data: Array<unknown> }> {
     await this.isAdmin(user);
-    const data = await this.dataSrc.manager.find(
-      this.User,
-      { select: { id: true, name: true, email: true } },
-    );
+    const data = await this.User.findAll({ attributes: { exclude: ['password', 'name', 'createdAt', 'updatedAt'] } });
     return { message: 'Users successfully retrieved', data };
   }
 
   async getUserById(id: string, user: UserFields) {
     await this.isAdmin(user);
     await this.validateId(id);
-    const existingUser = await this.fetchOne(this.User, { where: { id } });
+    const existingUser = await this.User.findByPk(id, { attributes: { exclude: ['password'] } });
+    await this.validateFound(existingUser);
     return { message: 'User successfully retrieved', data: existingUser };
   }
 
   async updateUserById(id: string, user: UserFields, arg: UserFields) {
     await this.validateId(id);
     await this.isAdmin(user);
-    const foundUser = await this.dataSrc.getRepository(User).findOneOrFail({
-      where: { id },
-      select: {
-        id: true, name: true, email: true, password: true,
-      },
-    });
-    this.dataSrc.getRepository(User).merge(foundUser, arg);
-    const data = await this.dataSrc.getRepository(User).save(foundUser);
-    await this.dataSrc.getRepository(User).update({ id }, data);
+    const userFound = await this.User.findByPk(id);
+    await this.validateFound(userFound);
+    const data = await this.User.update(arg, { where: { id } });
     return { message: 'User successfully updated', data };
   }
 
   async deleteUserById(id: string, user: UserFields) {
     await this.validateId(id);
     await this.isAdmin(user);
-    await this.deleteOne(this.User, { where: { id } });
+    const userFound = await this.User.findByPk(id);
+    await this.validateFound(userFound);
+    await this.User.destroy({ where: { id } });
     return { message: 'User successfully deleted' };
   }
 }

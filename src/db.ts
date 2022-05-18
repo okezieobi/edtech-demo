@@ -1,15 +1,11 @@
+/* eslint-disable no-console */
 import { Sequelize } from 'sequelize-typescript';
 
 import Env from './utils/Env';
 
-const sequelize = new Sequelize({
+const sequelize = new Sequelize(new Env().databaseURL ?? '', {
   dialect: 'postgres',
-  models: [`${__dirname}./models`],
-  storage: new Env().databaseURL,
-  sync: { force: true },
+  models: [`${__dirname}/models`],
 });
 
-(async () => {
-  // eslint-disable-next-line no-console
-  await sequelize.authenticate().catch(console.error);
-})();
+export default sequelize;

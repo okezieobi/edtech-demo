@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import { QueryFailedError, EntityNotFoundError } from 'typeorm';
+// import { QueryFailedError, EntityNotFoundError } from 'typeorm';
 import { ValidationError } from 'class-validator';
 
 import AppError from '../Error';
@@ -42,40 +42,40 @@ const handleJwtError = (
   } else next(err);
 };
 
-const handleEntityNotFoundErr = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void => {
-  if (err instanceof EntityNotFoundError) {
-    res.status(404);
-    next({
-      isClient: errorMarkers.isClient,
-      response: {
-        status: errorMarkers.status,
-        ...err,
-        data: {
-          timestamp: errorMarkers.timestamp,
-        },
-      },
-    });
-  } else next(err);
-};
+// const handleEntityNotFoundErr = (
+//   err: Error,
+//   req: Request,
+//   res: Response,
+//   next: NextFunction,
+// ): void => {
+//   if (err instanceof EntityNotFoundError) {
+//     res.status(404);
+//     next({
+//       isClient: errorMarkers.isClient,
+//       response: {
+//         status: errorMarkers.status,
+//         ...err,
+//         data: {
+//           timestamp: errorMarkers.timestamp,
+//         },
+//       },
+//     });
+//   } else next(err);
+// };
 
-const handleSQLErr = (err: Error, req: Request, res: Response, next: NextFunction): void => {
-  if (err instanceof QueryFailedError) {
-    res.status(400);
-    next({
-      isClient: errorMarkers.isClient,
-      response: {
-        status: errorMarkers.status,
-        message: err.message,
-        data: { type: 'SQLQueryError', ...err.driverError, timestamp: errorMarkers.timestamp },
-      },
-    });
-  } else next(err);
-};
+// const handleSQLErr = (err: Error, req: Request, res: Response, next: NextFunction): void => {
+//   if (err instanceof QueryFailedError) {
+//     res.status(400);
+//     next({
+//       isClient: errorMarkers.isClient,
+//       response: {
+//         status: errorMarkers.status,
+//         message: err.message,
+//         data: { type: 'SQLQueryError', ...err.driverError, timestamp: errorMarkers.timestamp },
+//       },
+//     });
+//   } else next(err);
+// };
 
 const handleValidationError = (err: any, req: Request, res: Response, next: NextFunction): void => {
   if (err.constructor.name === 'ValidationError' || err[0] instanceof ValidationError) {
@@ -128,8 +128,8 @@ const dispatchClientError = ((
 
 export default [
   handleJwtError,
-  handleEntityNotFoundErr,
-  handleSQLErr,
+  // handleEntityNotFoundErr,
+  // handleSQLErr,
   handleValidationError,
   handleCustomError,
   dispatchClientError];

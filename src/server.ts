@@ -9,6 +9,7 @@ import debugModule from 'debug';
 import { createServer } from 'http';
 
 import app from './app';
+import sequelize from './db';
 
 const debug = debugModule('edtech-demo:server');
 
@@ -87,6 +88,7 @@ function onListening() {
   const bind = typeof addr === 'string'
     ? `pipe ${addr}`
     : `port ${addr!.port}`;
+  sequelize.sync({ force: true }).catch(debug);
   debug(`Listening on ${bind}, connected to database`);
 }
 /**
