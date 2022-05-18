@@ -3,6 +3,7 @@ import {
 } from 'class-validator';
 
 import IsValidFields from '.';
+import { UserFields } from '../models/User';
 
 interface IsUserFields {
     email: string;
@@ -13,9 +14,6 @@ export default class IsUser extends IsValidFields implements IsUserFields {
     @IsEmail(undefined, { context: { errorCode: 400 }, groups: ['login'] })
       email!: string;
 
-    @IsNotEmpty({ message: 'User not found', context: { errorCode: 401 }, groups: ['userNotFound'] })
-      $exists!: any;
-
     @IsString({ context: { errorCode: 400 }, groups: ['login'] })
     @IsNotEmpty({ context: { errorCode: 400 }, groups: ['login'] })
       password!: string;
@@ -24,7 +22,23 @@ export default class IsUser extends IsValidFields implements IsUserFields {
       restricted!: string;
 
     @Equals('admin', { message: 'User role must be admin', context: { errorCode: 403 }, groups: ['admin'] })
-      admin!:string;
+      admin!: string;
+
+    async isAdmin(user: UserFields) {
+      this.admin = user.role;
+      return this.validateProps({ groups: ['admin'], validationError: { target: false } });
+    }
+
+    async isRestricted(user: UserFields) {
+      this.restricted = user.role;
+      return this.validateProps({ groups: ['restricted'], validationError: { target: false } });
+    }
+
+    async isLogin({ email, password }: any | UserFields) {
+      this.email = email;
+      this.password = password;
+      return this.validateProps({ validationError: { target: true }, groups: ['login'] });
+    }
 }
 
 export { IsUserFields };

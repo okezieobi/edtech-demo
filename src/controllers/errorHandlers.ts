@@ -79,12 +79,12 @@ const handleJwtError = (
 
 const handleValidationError = (err: any, req: Request, res: Response, next: NextFunction): void => {
   if (err.constructor.name === 'ValidationError' || err[0] instanceof ValidationError) {
-    res.status(400);
+    res.status(err?.contexts?.errorCode ?? 400);
     next({
       isClient: errorMarkers.isClient,
       response: {
         status: errorMarkers.status,
-        message: err.message ?? 'Validation failed',
+        message: err.message,
         data: { type: 'ValidationError', ...err, timestamp: errorMarkers.timestamp },
       },
     });

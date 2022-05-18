@@ -12,7 +12,7 @@ interface UserFields {
   id: string;
   email: string
   name: string;
-  password?: string;
+  password: string | undefined ;
   role: string;
 }
 
