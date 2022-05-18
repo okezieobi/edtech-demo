@@ -39,40 +39,41 @@ export default class UserServices extends Services {
   }
 
   async signup(arg: UserFields) {
-    const data = await this.User.create(arg);
+    const data = await (await this.User.create(arg, { returning: ['id'] })).toJSON();
     delete data.password;
     return { message: 'User successfully signed up', data };
   }
 
   async createUser(arg: UserFields, user: UserFields) {
     await this.isAdmin(user);
-    const data = new this.User(arg);
-    await data.save();
+    const data = await (await this.User.create(arg)).toJSON();
     delete data.password;
     return { message: 'User successfully created', data };
   }
 
-  async login({ email, password }: IsUserFields): Promise<{ message: string, data: User | null }> {
+  async login({ email, password }: IsUserFields):
+    Promise<{ message: string, data: UserFields | undefined }> {
     const userParams = new IsUser();
     userParams.email = email;
     userParams.password = password;
     await userParams.validate({ validationError: { target: true }, groups: ['login'] });
-    const data = await this.User.findOne({
+    const user = await this.User.findOne({
       where: { email },
     });
-    await this.validateFound(data);
-    await data!.validatePassword(password);
+    await this.validateFound(user);
+    await user!.validatePassword(password);
+    const data = await user?.toJSON();
     delete data!.password;
     return { message: 'Registered user successfully signed in', data };
   }
 
-  async auth(id: string): Promise<User | null> {
+  async auth(id: string): Promise<UserFields | null> {
     await this.validateId(id, false);
     const user = await this.User.findByPk(id, { attributes: { exclude: ['password'] } });
     const isUser = new IsUser();
     isUser.$exists = user;
     await isUser.validate({ validationError: { target: false }, groups: ['userNotFound'] });
-    return user;
+    return user!.toJSON();
   }
 
   async listUsers(user: UserFields): Promise<{ message: string, data: Array<unknown> }> {

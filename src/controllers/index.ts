@@ -24,6 +24,6 @@ export default abstract class Controller {
   }
 
   dispatchResponse(req: Request, res: Response): void {
-    res.status(res.statusCode ?? 200).send({ status: 'success', ...res.locals[this.constructor.name] });
+    res.status(res.statusCode ?? 200).json({ status: 'success', ...res.locals[this.constructor.name] });
   }
 }
