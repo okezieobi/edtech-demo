@@ -3,7 +3,6 @@ import {
   Model, Table, Column, DataType, HasMany,
 } from 'sequelize-typescript';
 
-import AppError from '../Error';
 import bcrypt from '../utils/bcrypt';
 import Assessment from './Assessment';
 import Submission from './Submission';
@@ -67,10 +66,12 @@ export default class User extends Model<UserFields, UserCreationFields> {
     @HasMany(() => Submission)
     declare submissions?: Submission[];
 
-    async validatePassword(password: string, param: string = 'password'): Promise<void> {
+    async validatePassword(password: string, param: string = 'Password'): Promise<void> {
       const isValidPassword = await bcrypt.compareString(password, this.password);
       if (!isValidPassword) {
-        throw new AppError('Password provided does not match user', 'Authorization', { param, msg: 'Authentication failed, mismatched password' });
+        const error = new Error(`${param} provided does not match user`);
+        error.name = 'PasswordError';
+        throw error;
       }
     }
 }

@@ -4,7 +4,7 @@ import express, {
 import logger from 'morgan';
 import cors from 'cors';
 
-import routes from './routes/router';
+import routes from './router';
 import swaggerSpec from './utils/swagger';
 import errorHandlers from './controllers/errorHandlers';
 

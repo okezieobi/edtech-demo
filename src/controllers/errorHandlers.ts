@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-// import { QueryFailedError, EntityNotFoundError } from 'typeorm';
 import { ValidationError } from 'class-validator';
-
-import AppError from '../Error';
 
 interface ResponseError extends Error {
     isClient: boolean;
@@ -18,24 +15,21 @@ const errorMarkers = {
 
 const handleJwtError = (
   err: Error,
-  { headers }: Request,
+  req : Request,
   res: Response,
   next: NextFunction,
 ): void => {
   if (err instanceof JsonWebTokenError || err instanceof TokenExpiredError) {
     res.status(401);
     next({
-      isClient: errorMarkers.isClient,
       response: {
         status: errorMarkers.status,
+        name: err.name,
         message: err.message,
         data: {
-          name: err.name,
           param: 'token',
           location: 'headers',
-          value: headers.token,
-          msg: 'Verification of jwt failed',
-          timestamp: errorMarkers.timestamp,
+          summary: 'Verification of jwt failed',
         },
       },
     });
@@ -63,58 +57,73 @@ const handleJwtError = (
 //   } else next(err);
 // };
 
-// const handleSQLErr = (err: Error, req: Request, res: Response, next: NextFunction): void => {
-//   if (err instanceof QueryFailedError) {
-//     res.status(400);
-//     next({
-//       isClient: errorMarkers.isClient,
-//       response: {
-//         status: errorMarkers.status,
-//         message: err.message,
-//         data: { type: 'SQLQueryError', ...err.driverError, timestamp: errorMarkers.timestamp },
-//       },
-//     });
-//   } else next(err);
-// };
-
-const handleValidationError = (err: any, req: Request, res: Response, next: NextFunction): void => {
-  if (err.constructor.name === 'ValidationError' || err[0] instanceof ValidationError) {
-    res.status(err?.contexts?.errorCode ?? 400);
+const handleUniqueErr = (err: any, req: Request, res: Response, next: NextFunction): void => {
+  if (err.name === 'SequelizeUniqueConstraintError') {
+    res.status(422);
     next({
-      isClient: errorMarkers.isClient,
       response: {
         status: errorMarkers.status,
+        name: err.name,
         message: err.message,
-        data: { type: 'ValidationError', ...err, timestamp: errorMarkers.timestamp },
+        data: err.errors,
       },
     });
   } else next(err);
 };
 
-const handleCustomError = (
-  err: AppError,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void => {
-  const error = { status: errorMarkers.status, message: err.message, data: err.data };
-  switch (err.type) {
-    case 'Authorization':
-      res.status(401);
-      next({ isClient: errorMarkers.isClient, response: error });
-      break;
-    case 'Forbidden':
-      res.status(403);
-      next({ isClient: errorMarkers.isClient, response: error });
-      break;
-    case 'NotFound':
-      res.status(404);
-      next({ isClient: errorMarkers.isClient, response: error });
-      break;
-    default:
-      next(err);
-  }
+const handleValidationError = (err: any, req: Request, res: Response, next: NextFunction): void => {
+  if (err.constructor.name === 'ValidationError' || err[0] instanceof ValidationError) {
+    res.status(err?.errorCode ?? err?.contexts?.errorCode ?? 400);
+    next({
+      response: {
+        status: errorMarkers.status,
+        name: err.name,
+        message: err.message,
+        data: err,
+      },
+    });
+  } else next(err);
 };
+
+const handlePassWordErr = (err: Error, req: Request, res: Response, next: NextFunction) => {
+  if (err.name === 'PasswordError') {
+    res.status(401);
+    next({
+      response: {
+        status: errorMarkers.status,
+        name: err.name,
+        message: err.message,
+      },
+    });
+  } else next(err);
+};
+
+// const handleCustomError = (
+//   err: AppError,
+//   req: Request,
+//   res: Response,
+//   next: NextFunction,
+// ): void => {
+//   const error = {
+//     status: errorMarkers.status, name: err.name, message: err.message, data: err.data,
+//   };
+//   switch (err.type) {
+//     case 'Authorization':
+//       res.status(401);
+//       next({ response: error });
+//       break;
+//     case 'Forbidden':
+//       res.status(403);
+//       next({ response: error });
+//       break;
+//     case 'NotFound':
+//       res.status(404);
+//       next({ response: error });
+//       break;
+//     default:
+//       next(err);
+//   }
+// };
 
 const dispatchClientError = ((
   err: ResponseError,
@@ -122,14 +131,15 @@ const dispatchClientError = ((
   res: Response,
   next: NextFunction,
 ): void => {
-  if (err.isClient) res.send(err.response);
+  if (res.statusCode) res.send(err.response);
   else next(err);
 });
 
 export default [
   handleJwtError,
   // handleEntityNotFoundErr,
-  // handleSQLErr,
+  handleUniqueErr,
   handleValidationError,
-  handleCustomError,
+  // handleCustomError,
+  handlePassWordErr,
   dispatchClientError];
