@@ -13,7 +13,8 @@ export default class User extends Controller {
     super();
     this.UserServices = Services;
     this.Jwt = Jwt;
-    this.setJWT = this.setJWT.bind(this);
+    this.generateJWT = this.generateJWT.bind(this);
+    this.verifyJWT = this.verifyJWT.bind(this);
     this.signup = this.signup.bind(this);
     this.login = this.login.bind(this);
     this.auth = this.auth.bind(this);
@@ -24,7 +25,7 @@ export default class User extends Controller {
     this.deleteOne = this.deleteOne.bind(this);
   }
 
-  setJWT(req: Request, res: Response, next: NextFunction) {
+  generateJWT(req: Request, res: Response, next: NextFunction) {
     const { generate } = new this.Jwt();
     generate(res.locals[this.constructor.name].data.id).then((token) => {
       res.locals[this.constructor.name].token = token;
@@ -39,11 +40,15 @@ export default class User extends Controller {
     });
   }
 
-  async createOne({ body }: Request, res: Response, next: NextFunction): Promise<void> {
+  createOne({ body }: Request, res: Response, next: NextFunction): void {
     const { createUser } = new this.UserServices();
-    res.locals[this.constructor.name] = await createUser(body, res.locals.authorized).catch(next);
-    res.status(201);
-    next();
+    createUser(body, res.locals.authorized)
+      .then((data) => {
+        res.locals[this.constructor.name] = data;
+        res.status(201);
+        next();
+      })
+      .catch(next);
   }
 
   login({ body }: Request, res: Response, next: NextFunction): void {
@@ -53,25 +58,33 @@ export default class User extends Controller {
     });
   }
 
-  auth({ headers: { token } }: Request, res: Response, next: NextFunction): void {
-    const { verify } = new this.Jwt();
-    verify(`${token}`)
-      .then(async ({ id }: any) => {
-        const { auth } = new this.UserServices();
-        auth(id)
-          .then((user) => {
-            res.locals.authorized = user;
-            next();
-          })
-          .catch(next);
+  auth(req: Request, res: Response, next: NextFunction): void {
+    const { auth } = new this.UserServices();
+    auth(res.locals.authorized)
+      .then((user) => {
+        res.locals.authorized = user;
+        next();
       })
       .catch(next);
   }
 
-  async getOne({ params: { id } }: Request, res: Response, next: NextFunction): Promise<void> {
+  verifyJWT({ headers: { token } }: Request, res: Response, next: NextFunction): void {
+    const { verify } = new this.Jwt();
+    verify(`${token}`)
+      .then(async ({ id }: any) => {
+        res.locals.authorized = id;
+      })
+      .catch(next);
+  }
+
+  getOne({ params: { id } }: Request, res: Response, next: NextFunction): void {
     const { getUserById } = new this.UserServices();
-    res.locals[this.constructor.name] = await getUserById(id, res.locals.authorized).catch(next);
-    next();
+    getUserById(id, res.locals.authorized)
+      .then((data) => {
+        res.locals[this.constructor.name] = data;
+        next();
+      })
+      .catch(next);
   }
 
   listAll(req: Request, res: Response, next: NextFunction): void {
@@ -84,20 +97,26 @@ export default class User extends Controller {
     });
   }
 
-  async updateOne(
+  updateOne(
     { params: { id }, body }: Request,
     res: Response,
     next: NextFunction,
-  ): Promise<void> {
+  ): void {
     const { updateUserById } = new this.UserServices();
-    res.locals[this.constructor.name] = await updateUserById(id, res.locals.authorized, body)
+    updateUserById(id, res.locals.authorized, body)
+      .then((data) => {
+        res.locals[this.constructor.name] = data;
+        next();
+      })
       .catch(next);
-    next();
   }
 
   async deleteOne({ params: { id } }: Request, res: Response, next: NextFunction) {
     const { deleteUserById } = new this.UserServices();
-    res.locals[this.constructor.name] = await deleteUserById(id, res.locals.authorized);
-    next();
+    deleteUserById(id, res.locals.authorized)
+      .then((data) => {
+        res.locals[this.constructor.name] = data;
+        next();
+      });
   }
 }

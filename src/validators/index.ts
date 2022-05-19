@@ -3,11 +3,12 @@ import {
 } from 'class-validator';
 
 import User, { UserFields } from '../models/User';
+import Assessment from '../models/Assessment';
 
 export default abstract class IsValidFields {
   property: string;
 
-  model: { User: typeof User };
+  model: { User: typeof User, Assessment: typeof Assessment };
 
    @IsIn(['mentor', 'admin'], { message: 'User role must be mentor or admin', groups: ['restricted'] })
      user_role!: string;

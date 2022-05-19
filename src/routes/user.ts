@@ -3,15 +3,15 @@ import { Router } from 'express';
 import Controller from '../controllers/User';
 
 const {
-  signup, login, setJWT, dispatchResponse, auth, createOne,
-  listAll, getOne, updateOne, deleteOne,
+  signup, login, generateJWT, dispatchResponse, auth, createOne,
+  listAll, getOne, updateOne, deleteOne, verifyJWT,
 } = new Controller();
 
 const authRouter = Router();
 const userRouter = Router();
 
-authRouter.post('/signup', [signup, setJWT], dispatchResponse);
-authRouter.post('/login', [login, setJWT], dispatchResponse);
+authRouter.post('/signup', [signup, generateJWT], dispatchResponse);
+authRouter.post('/login', [login, generateJWT], dispatchResponse);
 
 userRouter.route('/')
   .post(createOne, dispatchResponse)
@@ -23,5 +23,5 @@ userRouter.route('/:id')
   .delete(deleteOne, dispatchResponse);
 
 export default {
-  authRouter, auth, userRouter,
+  authRouter, auth: [verifyJWT, auth], userRouter,
 };

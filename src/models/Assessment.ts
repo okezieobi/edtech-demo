@@ -58,3 +58,5 @@ export default class Assessment extends Model<AssessmentFields, AssessmentCreati
     @HasMany(() => Submission)
       submissions!: Submission[];
 }
+
+export { AssessmentFields };
