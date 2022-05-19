@@ -15,15 +15,17 @@ export default abstract class Controller {
     this.handleService = this.handleService.bind(this);
   }
 
-  async handleService({
+  handleService({
     method, res, next, status = 200, arg,
-  }: handleServiceFields): Promise<void> {
-    res.locals[this.constructor.name] = await method(arg).catch(next);
-    res.status(status);
-    next();
+  }: handleServiceFields): void {
+    method(arg).catch(next).then((data: any) => {
+      res.locals[this.constructor.name] = data;
+      res.status(status);
+      next();
+    }).catch(next);
   }
 
   dispatchResponse(req: Request, res: Response): void {
-    res.status(res.statusCode ?? 200).json({ status: 'success', ...res.locals[this.constructor.name] });
+    res.status(res.statusCode ?? 200).json({ success: { ...res.locals[this.constructor.name] } });
   }
 }

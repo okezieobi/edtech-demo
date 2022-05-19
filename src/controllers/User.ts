@@ -32,9 +32,9 @@ export default class User extends Controller {
     }).catch(next);
   }
 
-  async signup({ body }: Request, res: Response, next: NextFunction): Promise<void> {
+  signup({ body }: Request, res: Response, next: NextFunction): void {
     const { signup } = new this.UserServices();
-    await this.handleService({
+    this.handleService({
       method: signup, res, next, arg: body, status: 201,
     });
   }
@@ -46,9 +46,9 @@ export default class User extends Controller {
     next();
   }
 
-  async login({ body }: Request, res: Response, next: NextFunction): Promise<void> {
+  login({ body }: Request, res: Response, next: NextFunction): void {
     const { login } = new this.UserServices();
-    await this.handleService({
+    this.handleService({
       method: login, res, next, arg: body,
     });
   }
@@ -58,8 +58,12 @@ export default class User extends Controller {
     verify(`${token}`)
       .then(async ({ id }: any) => {
         const { auth } = new this.UserServices();
-        res.locals.authorized = await auth(id).catch(next);
-        next();
+        auth(id)
+          .then((user) => {
+            res.locals.authorized = user;
+            next();
+          })
+          .catch(next);
       })
       .catch(next);
   }
@@ -70,9 +74,9 @@ export default class User extends Controller {
     next();
   }
 
-  async listAll(req: Request, res: Response, next: NextFunction): Promise<void> {
+  listAll(req: Request, res: Response, next: NextFunction): void {
     const { listUsers } = new this.UserServices();
-    await this.handleService({
+    this.handleService({
       method: listUsers,
       res,
       next,
