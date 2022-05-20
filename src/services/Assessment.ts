@@ -12,7 +12,7 @@ export default class AssessmentServices extends IsValidFields {
     this.deleteAssessmentById = this.deleteAssessmentById.bind(this);
   }
 
-  async createAssessment(arg: any & AssessmentFields, user: User) {
+  async createAssessment(arg: any & AssessmentFields, user: User & UserFields) {
     await this.isRestricted(user);
     let result: any;
     if (arg.mentorId != null) {
@@ -66,9 +66,15 @@ export default class AssessmentServices extends IsValidFields {
     id: string,
     arg: any & AssessmentFields,
     user: any & UserFields,
+    userId: string,
   ) {
     await this.isRestricted(user);
     await this.isUUID(id);
+    let result: any;
+    if (user.role === 'admin') {
+      const mentor = await this.model.User.findByPk(userId, { attributes: { exclude: ['password'] } });
+      await this.isFound(mentor);
+    }
     // const data = user.role === 'admin'
     //   ? await this.updateOne(this.Assessment, { where: { id } }, arg)
     //   : await this.updateOne(this.Assessment, { where: { id, mentor: user } }, arg);

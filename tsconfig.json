@@ -5,13 +5,16 @@
     "target": "es5",
     "module": "commonjs",
     "strict": true,
+    "sourceMap": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["esnext"],
+    "outDir": "dist"
   },
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Recommended",
-  "include": ["src/**/*", "tests", "seeders"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist/**/*"],
   "files": ["global.d.ts"]
 }
