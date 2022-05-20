@@ -1,27 +1,23 @@
-import {
-  IsEmail, IsString, IsNotEmpty,
-} from 'class-validator';
+import { IsEmail, IsString, IsNotEmpty } from 'class-validator'
 
-import IsValidFields, { UserFields } from '.';
+import { LoginFields } from '../interfaces'
 
-interface IsUserFields {
-    email: string;
-    password: string;
-}
+import IsValidFields from '.'
 
-export default class IsUser extends IsValidFields implements IsUserFields {
+export default class IsUser extends IsValidFields {
     @IsEmail(undefined, { context: { errorCode: 400 }, groups: ['login'] })
-      email!: string;
+    email!: string
 
     @IsString({ context: { errorCode: 400 }, groups: ['login'] })
     @IsNotEmpty({ context: { errorCode: 400 }, groups: ['login'] })
-      password!: string;
+    password?: string
 
-    async isLogin({ email, password }: any | UserFields) {
-      this.email = email;
-      this.password = password;
-      return this.validateProps({ validationError: { target: true }, groups: ['login'] });
+    async isLogin({ email, password }: LoginFields) {
+        this.email = email
+        this.password = password
+        return this.validateProps({
+            validationError: { target: true },
+            groups: ['login'],
+        })
     }
 }
-
-export { IsUserFields, UserFields };

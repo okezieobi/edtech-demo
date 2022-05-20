@@ -1,21 +1,21 @@
-import { Router } from 'express';
+// import { Router } from 'express';
 
-import Controller from '../controllers/Assessment';
+// import Controller from '../controllers/Assessment';
 
-const {
-  dispatchResponse, createOne, listAll, getOne,
-  updateOne, deleteOne,
-} = new Controller();
+// const {
+//   dispatchResponse, createOne, listAll, getOne,
+//   updateOne, deleteOne,
+// } = new Controller();
 
-const assessmentRouter = Router();
+// const assessmentRouter = Router();
 
-assessmentRouter.route('/')
-  .get(listAll, dispatchResponse)
-  .post(createOne, dispatchResponse);
+// assessmentRouter.route('/')
+//   .get(listAll, dispatchResponse)
+//   .post(createOne, dispatchResponse);
 
-assessmentRouter.route('/:id')
-  .put(updateOne, dispatchResponse)
-  .delete(deleteOne, dispatchResponse)
-  .get(getOne, dispatchResponse);
+// assessmentRouter.route('/:id')
+//   .put(updateOne, dispatchResponse)
+//   .delete(deleteOne, dispatchResponse)
+//   .get(getOne, dispatchResponse);
 
-export default assessmentRouter;
+// export default assessmentRouter;

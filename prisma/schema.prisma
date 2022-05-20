@@ -1,19 +1,68 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// for extensions like pgcrypto run 'npx prisma migrate dev --create-only' to get sql file
+// edit file to add extension
+// run 'npx prisma migrate dev' to migrate
+
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+enum Role {
+    User
+    Admin
+    Mentor
 }
 
 model User {
-  id       String @id @default(dbgenerated(""))
-  email    String @unique
-  name     String
-  password String
-  role     String
+    id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    createdAt  DateTime     @default(now())
+    updatedAt  DateTime     @updatedAt
+    email      String       @unique
+    name       String
+    password   String
+    role       Role         @default(User)
+    Assessment Assessment[]
+    Submission Submission[]
+}
+
+model Assessment {
+    id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+    mentor      User         @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+    mentorId    String       @db.Uuid
+    Submission  Submission[]
+    title       String
+    description String
+    deadline    DateTime
+}
+
+model Submission {
+    id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+    links        String[]
+    submittedAt  DateTime   @default(now())
+    student      User       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+    studentId    String     @db.Uuid
+    assessment   Assessment @relation(fields: [assessmentId], references: [id])
+    assessmentId String     @db.Uuid
+    Grade        Grade?
+}
+
+model Grade {
+    id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+    mark         String
+    comment      String
+    submission   Submission @relation(fields: [submissionId], references: [id])
+    submissionId String     @unique @db.Uuid
 }

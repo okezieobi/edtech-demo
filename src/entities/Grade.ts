@@ -1,32 +1,32 @@
-import {
-  Entity, Column, OneToOne,
-} from 'typeorm';
-import { IsNotEmpty, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
+// import {
+//   Entity, Column, OneToOne,
+// } from 'typeorm';
+// import { IsNotEmpty, IsString } from 'class-validator';
+// import { Type } from 'class-transformer';
 
-import Main from './Main';
-import Submission from './Submissions';
+// import Main from './Main';
+// import Submission from './Submissions';
 
-interface GradeFields {
-  mark: string;
-  remarks: string;
-}
+// interface GradeFields {
+//   mark: string;
+//   remarks: string;
+// }
 
-@Entity()
-export default class GradeEntity extends Main implements GradeFields {
-    @Column({ type: 'text' })
-    @IsString()
-    @IsNotEmpty()
-      mark!: string;
+// @Entity()
+// export default class GradeEntity extends Main implements GradeFields {
+//     @Column({ type: 'text' })
+//     @IsString()
+//     @IsNotEmpty()
+//       mark!: string;
 
-    @Column({ type: 'text' })
-    @IsString()
-    @IsNotEmpty()
-      remarks!: string;
+//     @Column({ type: 'text' })
+//     @IsString()
+//     @IsNotEmpty()
+//       remarks!: string;
 
-    @Type(() => Submission)
-    @OneToOne(() => Submission, (submission) => submission.grade)
-      submission!: Submission;
-}
+//     @Type(() => Submission)
+//     @OneToOne(() => Submission, (submission) => submission.grade)
+//       submission!: Submission;
+// }
 
-export { GradeFields };
+// export { GradeFields };
