@@ -16,8 +16,8 @@ export default class UserServices extends IsUser {
         this.deleteUserById = this.deleteUserById.bind(this)
     }
 
-    async signup(arg: any & UserFields) {
-        const user = await this.model.user.create(arg)
+  async signup({ email, name, password }: any & UserFields) {
+    const user = await this.model.user.create({ data: { email, name, password } });
         return { message: 'User successfully signed up', data: user }
     }
 

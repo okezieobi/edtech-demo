@@ -1,0 +1,6 @@
+{
+    "events": {
+        "restart": "npm run db:reset",
+        "start": "npm run db:reset"
+    }
+}
