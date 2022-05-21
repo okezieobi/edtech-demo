@@ -4,7 +4,7 @@
     "description": "A simple REST API edtech demo",
     "main": "index.js",
     "scripts": {
-        "start:dev": "NODE_ENV=development DEBUG=edtech-demo:* nodemon src/server.ts",
+        "start:dev": "NODE_ENV=development DEBUG=edtech-demo:* nodemon -C ttypescript src/server.ts",
         "release": "npm run clean && npm run build-app && npm run start",
         "db:reset": "npx prisma migrate reset --force && npx prisma db push -- accept-data-loss",
         "clean": "rm -rf dist && mkdir dist",
@@ -42,7 +42,8 @@
         "morgan": "latest",
         "strong-error-handler": "^4.0.0",
         "swagger-jsdoc": "latest",
-        "swagger-ui-express": "latest"
+        "swagger-ui-express": "latest",
+        "typescript-is": "^0.19.0"
     },
     "devDependencies": {
         "@tsconfig/recommended": "latest",
@@ -71,6 +72,7 @@
         "prisma": "^3.14.0",
         "supertest": "^6.2.3",
         "ts-node": "^10.5.0",
+        "ttypescript": "^1.5.13",
         "typescript": "latest"
     }
 }

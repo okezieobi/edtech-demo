@@ -10,7 +10,15 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["esnext"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "plugins": [
+            { 
+              "transform": "typescript-is/lib/transform-inline/transformer",
+              "disallowSuperfluousObjectProperties": true,
+                "transformNonNullExpressions": true,
+                "emitDetailedErrors": "auto"
+            }
+        ]
   },
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Recommended",
