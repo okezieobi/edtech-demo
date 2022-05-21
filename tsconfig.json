@@ -1,28 +1,20 @@
 {
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "target": "es5",
-    "module": "commonjs",
-    "strict": true,
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["esnext"],
-    "outDir": "dist",
-    "plugins": [
-            { 
-              "transform": "typescript-is/lib/transform-inline/transformer",
-              "disallowSuperfluousObjectProperties": true,
-                "transformNonNullExpressions": true,
-                "emitDetailedErrors": "auto"
-            }
-        ]
-  },
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Recommended",
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist/**/*"],
-  "files": ["global.d.ts"]
+    "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "target": "es5",
+        "module": "commonjs",
+        "strict": true,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "lib": ["esnext"],
+        "outDir": "dist"
+    },
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Recommended",
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist/**/*"],
+    "files": ["global.d.ts"]
 }
