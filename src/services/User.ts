@@ -1,23 +1,18 @@
 /* eslint-disable class-methods-use-this */
 import { PrismaClient } from '@prisma/client';
 import IsUser, { User, Login } from '../validators/User';
-import bcrypt from '../utils/bcrypt';
+import userHelper from '../helpers/User';
 
 const prisma = new PrismaClient();
 
-prisma.$use(async (params, next) => {
-    if (params.model === 'User' && params.action === 'create') {
-        params.args.data.password = await bcrypt.hashString(
-            params.args.data.password
-        );
-    }
-    return next(params);
-});
+const primaWithMiddleware = userHelper.middleware(prisma, IsUser);
+
+const userModel = userHelper.model(primaWithMiddleware);
 
 export default class UserServices extends IsUser {
-    model: typeof prisma;
+    model: typeof userModel;
 
-    constructor(model = prisma, property = 'user') {
+    constructor(model = userModel, property = 'user') {
         super(property);
         this.model = model;
         this.login = this.login.bind(this);
@@ -48,8 +43,7 @@ export default class UserServices extends IsUser {
         const user = await this.model.user.findUnique({
             where: { email },
         });
-        await this.isFound(user);
-        // await user?.validatePassword(password)
+        await this.model.comparePassword(password, user!.password);
         return {
             message: 'Registered user successfully signed in',
             data: user,

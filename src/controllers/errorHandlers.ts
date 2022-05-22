@@ -29,12 +29,12 @@ const handleJwtError = (
 };
 
 const handleUniqueErr = (
-    err: any,
+    err: Error,
     req: Request,
     res: Response,
     next: NextFunction
 ): void => {
-    if (err.name === 'Not') {
+    if (err.name === 'NotFoundError') {
         res.status(404);
         next({
             error: {

@@ -1,6 +1,4 @@
-import express, {
-  json, urlencoded,
-} from 'express';
+import express, { json, urlencoded } from 'express';
 import logger from 'morgan';
 import cors from 'cors';
 
@@ -18,7 +16,9 @@ app.use('/api-docs', swaggerSpec.serve, swaggerSpec.setup);
 
 app.use('/api/v1', routes);
 
-app.get('', (req, res) => { res.redirect('/api-docs'); });
+app.get('', (req, res) => {
+    res.redirect('/api-docs');
+});
 
 app.use(...errorHandlers);
 
