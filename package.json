@@ -6,7 +6,7 @@
     "scripts": {
         "start:dev": "NODE_ENV=development DEBUG=edtech-demo:* nodemon src/server.ts",
         "release": "npm run clean && npm run build-app && npm run start",
-        "db:reset": "npx prisma migrate reset --force && npx prisma db push -- accept-data-loss",
+        "db:reset": "npx prisma migrate reset --force --skip-generate && npx prisma db push --accept-data-loss --skip-generate",
         "clean": "rm -rf dist",
         "build": "npm run clean && npm run build-app",
         "build-app": "npx tsc",
