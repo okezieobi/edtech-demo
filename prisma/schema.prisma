@@ -1,6 +1,8 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// run 'sudo -u postgres createdb <database-name>' to setup database
+// run 'sudo -u postgres createuser <new-user> -P' to create user
 // for extensions like pgcrypto run 'npx prisma migrate dev --create-only' to get sql file
 // edit file to add extension
 // run 'npx prisma migrate dev' to migrate
